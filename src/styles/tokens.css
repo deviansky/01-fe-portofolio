@@ -1,0 +1,85 @@
+/* ================================================================
+   DESIGN TOKENS — satu-satunya tempat warna, font, dan jarak didefinisikan.
+   Komponen WAJIB memakai var(--...), jangan hardcode hex.
+   Konsep: "dokumen operasional" — kertas dingin, tinta biru rute,
+   cap violet. Cap adalah satu-satunya elemen yang berani.
+   ================================================================ */
+:root {
+  /* warna — mode terang */
+  --bg: #eef1f4;          /* kertas dingin */
+  --surface: #ffffff;
+  --paper: #fbfbf8;       /* kertas surat jalan */
+  --ink: #18212d;         /* teks utama */
+  --ink-soft: #4f5b69;    /* teks sekunder */
+  --line: #ccd4dd;        /* garis & border */
+  --route: #1d4e89;       /* aksi utama, link */
+  --route-contrast: #ffffff;
+  --stamp: #5b3fd6;       /* cap — hanya untuk status/cap */
+  --ok: #1f7a4d;
+  --danger: #b42318;
+
+  /* tipografi */
+  --font: 'Schibsted Grotesk', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-md: 1.25rem;
+  --fs-lg: 1.563rem;
+  --fs-xl: 1.953rem;
+  --fs-display: clamp(2.75rem, 7vw, 5.25rem);
+  --lh-body: 1.6;
+  --lh-tight: 1.1;
+
+  /* jarak (kelipatan 4px) */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-6: 1.5rem;
+  --s-8: 2rem;
+  --s-12: 3rem;
+  --s-16: 4rem;
+  --s-24: 6rem;
+
+  /* bentuk — radius dibedakan menurut hierarki, tidak seragam */
+  --r-sm: 4px;   /* chip, input */
+  --r-md: 8px;   /* tombol */
+  --r-doc: 2px;  /* dokumen: nyaris siku, seperti kertas */
+
+  --container: 1120px;
+  --measure: 68ch;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  color-scheme: light;
+}
+
+/* dark mode mengikuti sistem kalau user belum memilih */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0f151c;
+    --surface: #16202b;
+    --paper: #1b2632;
+    --ink: #e4e9ef;
+    --ink-soft: #9aa7b5;
+    --line: #2a3744;
+    --route: #8ab8ec;
+    --route-contrast: #0f151c;
+    --stamp: #ad9bff;
+    --ok: #5cc995;
+    --danger: #ff8a80;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #0f151c;
+  --surface: #16202b;
+  --paper: #1b2632;
+  --ink: #e4e9ef;
+  --ink-soft: #9aa7b5;
+  --line: #2a3744;
+  --route: #8ab8ec;
+  --route-contrast: #0f151c;
+  --stamp: #ad9bff;
+  --ok: #5cc995;
+  --danger: #ff8a80;
+  color-scheme: dark;
+}

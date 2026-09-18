@@ -1,0 +1,60 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { margin: 0; line-height: var(--lh-tight); font-weight: 700; }
+p { margin: 0 0 var(--s-4); }
+p:last-child { margin-bottom: 0; }
+img { max-width: 100%; display: block; }
+
+a { color: var(--route); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+
+:focus-visible { outline: 2px solid var(--route); outline-offset: 3px; border-radius: 2px; }
+
+.container { width: min(100% - 2.5rem, var(--container)); margin-inline: auto; }
+.muted { color: var(--ink-soft); }
+.prose { max-width: var(--measure); }
+
+.skip-link {
+  position: absolute; left: var(--s-4); top: -3rem;
+  background: var(--route); color: var(--route-contrast);
+  padding: var(--s-2) var(--s-4); border-radius: var(--r-md); z-index: 100;
+}
+.skip-link:focus { top: var(--s-4); }
+
+/* tombol */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 var(--s-6);
+  border-radius: var(--r-md); border: 1.5px solid transparent;
+  font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+  transition: background-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+.btn-primary { background: var(--route); color: var(--route-contrast); }
+.btn-primary:hover { background: color-mix(in srgb, var(--route) 85%, var(--ink)); }
+.btn-primary:disabled { opacity: 0.6; cursor: progress; }
+.btn-ghost { border-color: var(--line); color: var(--ink); background: transparent; }
+.btn-ghost:hover { border-color: var(--ink-soft); }
+
+.loading { min-height: 100vh; display: grid; place-items: center; color: var(--ink-soft); }
+
+.dev-banner {
+  position: fixed; bottom: var(--s-4); left: 50%; transform: translateX(-50%);
+  margin: 0; padding: var(--s-2) var(--s-4); font-size: var(--fs-sm);
+  background: var(--ink); color: var(--bg); border-radius: var(--r-md); z-index: 50;
+}

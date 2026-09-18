@@ -1,0 +1,112 @@
+/* HERO — nama + foto hitam-putih. Kelas berawalan hp-. */
+.hp-hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: var(--s-8);
+  align-items: end;
+  padding-top: var(--s-16);
+}
+
+.hp-text {
+  align-self: center;
+  padding-bottom: var(--s-12);
+}
+
+.hp-role {
+  color: var(--ink-soft);
+  font-weight: 600;
+  margin-bottom: var(--s-3);
+}
+
+.hp-name {
+  font-size: var(--fs-display);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  margin-bottom: var(--s-6);
+}
+
+.hp-tagline {
+  font-size: var(--fs-md);
+  color: var(--ink-soft);
+  max-width: 36ch;
+}
+
+.hp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin-top: var(--s-8);
+}
+
+.hp-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 460px;
+  isolation: isolate;
+}
+
+/* lingkaran lembut dengan tepi memudar */
+.hp-visual::before {
+  content: '';
+  position: absolute;
+  z-index: -2;
+  left: 46%;
+  top: 6%;
+  width: min(92%, 460px);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%,
+      color-mix(in srgb, var(--route) 12%, var(--bg)) 0%,
+      color-mix(in srgb, var(--route) 8%, var(--bg)) 55%,
+      transparent 71%);
+}
+
+/* pola titik di kanan bawah, memudar ke tepi */
+.hp-dots {
+  position: absolute;
+  z-index: -1;
+  right: -2%;
+  top: 34%;
+  width: 58%;
+  height: 52%;
+  background-image: radial-gradient(color-mix(in srgb, var(--ink-soft) 55%, transparent) 1.2px, transparent 1.6px);
+  background-size: 18px 18px;
+  -webkit-mask-image: radial-gradient(ellipse at 70% 45%, #000 20%, transparent 72%);
+  mask-image: radial-gradient(ellipse at 70% 45%, #000 20%, transparent 72%);
+}
+
+.hp-photo {
+  position: relative;
+  width: min(100%);
+  height: auto;
+  max-height: 580px;
+  object-fit: contain;
+  object-position: bottom;
+  filter: grayscale(1) contrast(1.06);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+}
+
+@media (max-width: 860px) {
+  .hp-hero {
+    grid-template-columns: 1fr;
+    padding-top: var(--s-12);
+    gap: 0;
+  }
+
+  .hp-text {
+    padding-bottom: var(--s-8);
+  }
+
+  .hp-visual {
+    min-height: 0;
+  }
+
+  .hp-photo {
+    width: min(86%, 360px);
+  }
+}
