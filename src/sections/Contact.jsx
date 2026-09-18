@@ -64,7 +64,6 @@ export default function Contact({ profile }) {
         {/* Kolom Kiri: Judul & Informasi Kontak */}
         <div className="contact-left">
           <div className="contact-header">
-            <span className="contact-label">Kontak</span>
             <h2 className="contact-title">{"Hubungi\nsaya."}</h2>
             <p className="contact-desc">
               Punya proyek, lowongan, atau sekadar ingin berdiskusi soal sistem? Kirim pesan lewat form atau hubungi saya langsung.

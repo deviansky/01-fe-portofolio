@@ -100,3 +100,48 @@
     padding-top: var(--s-6);
     border-top: 1px solid var(--line);
 }
+
+@media (max-width: 767px) {
+    .entries-list {
+        gap: 24px;
+    }
+
+    .entry-item {
+        gap: 12px;
+        padding-bottom: 24px;
+    }
+
+    .entry-logo {
+        width: 40px;
+        height: 40px;
+    }
+
+    .entry-title {
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .entry-subtitle {
+        font-size: 14px;
+    }
+
+    .entry-period,
+    .entry-location {
+        font-size: 13px;
+        margin-bottom: 2px;
+    }
+
+    .entry-description {
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    .entry-skills {
+        font-size: 13px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}

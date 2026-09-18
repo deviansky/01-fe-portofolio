@@ -6,15 +6,15 @@ export const contactConfig = {
     name: 'David Reza Widhiwipati',
     role: 'Fullstack Developer',
     phone: {
-        display: '+62 8xx-xxxx-xxxx',
-        href: 'https://wa.me/628xxxxxxxxxx',
+        display: '+62823-1665-3219',
+        href: 'https://wa.me/6282316653219',
     },
     linkedin: {
-        display: 'linkedin.com/in/[username]',
-        href: 'https://linkedin.com/in/[username]',
+        display: 'David Reza Widhiwipati',
+        href: 'https://www.linkedin.com/in/david-reza-widhiwipati-2311552b1/',
     },
     instagram: {
-        display: '@[username]',
-        href: 'https://instagram.com/[username]',
+        display: '@darez.reza',
+        href: 'https://www.instagram.com/darez.reza/',
     },
 }

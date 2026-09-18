@@ -8,7 +8,7 @@ export default function About({ profile, education }) {
         </div>
         <dl className="facts">
           {profile.location && (<div><dt>Lokasi</dt><dd>{profile.location}</dd></div>)}
-          {education && (<div><dt>Pendidikan</dt><dd>{education.degree} {education.field}, {education.institution}</dd></div>)}
+          {education && (<div><dt>Pendidikan</dt><dd>{[education.degree, education.field].filter(Boolean).join(' ')}, {education.institution}</dd></div>)}
           <div><dt>Status</dt><dd>{profile.available_for_work ? 'Terbuka untuk proyek dan posisi baru' : 'Belum menerima proyek baru'}</dd></div>
         </dl>
       </div>

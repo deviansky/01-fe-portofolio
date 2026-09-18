@@ -91,22 +91,55 @@
   mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
 }
 
-@media (max-width: 860px) {
+@media (max-width: 767px) {
   .hp-hero {
     grid-template-columns: 1fr;
-    padding-top: var(--s-12);
+    padding-top: var(--s-8);
     gap: 0;
   }
 
   .hp-text {
-    padding-bottom: var(--s-8);
+    padding-bottom: 0;
+  }
+
+  .hp-name {
+    font-size: 40px;
+    margin-bottom: 16px;
+  }
+
+  .hp-tagline {
+    font-size: 16px;
+    margin-bottom: 24px;
+  }
+
+  .hp-actions {
+    margin-top: 24px;
+    margin-bottom: 32px;
+    display: flex;
+    gap: 12px;
   }
 
   .hp-visual {
     min-height: 0;
+    width: 100%;
   }
 
   .hp-photo {
-    width: min(86%, 360px);
+    width: 100%;
+    max-width: 100%;
+    height: 300px;
+    max-height: 300px;
+    object-fit: cover;
+    object-position: top;
+  }
+}
+
+@media (max-width: 360px) {
+  .hp-actions {
+    flex-direction: column;
+  }
+
+  .hp-actions .btn {
+    width: 100%;
   }
 }
