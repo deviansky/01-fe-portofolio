@@ -10,6 +10,7 @@ import './styles/sections.css'
 import './styles/projects.css'
 import './styles/hero.css'
 import './styles/entries.css'
+import './styles/contact.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
