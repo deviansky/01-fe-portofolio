@@ -3,6 +3,7 @@
     padding-block: 96px;
     background-color: var(--bg, #ffffff);
     color: var(--ink, #0a0a0a);
+    border-top: 1px solid var(--line);
 }
 
 .contact-container {

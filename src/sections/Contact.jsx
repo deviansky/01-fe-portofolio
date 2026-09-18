@@ -59,8 +59,8 @@ export default function Contact({ profile }) {
   const instagramHref = profile?.socials?.instagram || contactConfig.instagram.href
 
   return (
-    <section className="contact-section" id="kontak">
-      <div className="container contact-container">
+    <section className="contact-section container" id="kontak">
+      <div className="contact-container">
         {/* Kolom Kiri: Judul & Informasi Kontak */}
         <div className="contact-left">
           <div className="contact-header">
