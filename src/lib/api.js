@@ -36,4 +36,37 @@ export const api = {
   getPortfolio: (signal) => request('/portfolio', { signal }),
   getProject: (slug, signal) => request(`/projects/${encodeURIComponent(slug)}`, { signal }),
   sendMessage: (payload) => request('/contact', { method: 'POST', body: payload }),
+
+  // Admin / Manager GUI methods
+  getAdminProjects: (params = {}, signal) => {
+    const query = new URLSearchParams(params).toString()
+    return request(`/admin/projects${query ? `?${query}` : ''}`, { signal })
+  },
+  getAdminProject: (id, signal) => request(`/admin/projects/${id}`, { signal }),
+  createProject: (payload) => request('/admin/projects', { method: 'POST', body: payload }),
+  updateProject: (id, payload) => request(`/admin/projects/${id}`, { method: 'PUT', body: payload }),
+  deleteProject: (id) => request(`/admin/projects/${id}`, { method: 'DELETE' }),
+
+  uploadThumbnail: async (id, file) => {
+    const formData = new FormData()
+    formData.append('image', file)
+
+    let res
+    try {
+      res = await fetch(`${BASE_URL}/admin/projects/${id}/thumbnail`, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: formData,
+      })
+    } catch {
+      throw new ApiError('Server tidak bisa dihubungi.', 0)
+    }
+
+    const json = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      throw new ApiError(json.message ?? `Upload gagal (${res.status}).`, res.status, json.errors)
+    }
+    return json
+  },
 }
+
