@@ -1,5 +1,18 @@
-const rawApiUrl = (import.meta.env.VITE_API_URL ?? '/api').trim()
-const BASE_URL = rawApiUrl.replace(/\/$/, '')
+function getApiUrl() {
+  const envUrl = import.meta.env.VITE_API_URL
+  if (typeof envUrl === 'string') {
+    const trimmed = envUrl.trim()
+    if (trimmed.startsWith('/') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed.replace(/\/$/, '')
+    }
+    if (trimmed !== '') {
+      console.warn(`[API] VITE_API_URL "${envUrl}" tidak valid. Harus diawali dengan "/", "http://", atau "https://". Memakai default "/api".`)
+    }
+  }
+  return '/api'
+}
+
+const BASE_URL = getApiUrl()
 
 export class ApiError extends Error {
   constructor(message, status, errors = {}) {
@@ -12,7 +25,9 @@ export class ApiError extends Error {
 async function request(path, { method = 'GET', body, signal } = {}) {
   let res
   try {
-    res = await fetch(`${BASE_URL}${path}`, {
+    const cleanPath = path.startsWith('/') ? path : `/${path}`
+    const fullUrl = `${BASE_URL}${cleanPath}`
+    res = await fetch(fullUrl, {
       method,
       signal,
       headers: {

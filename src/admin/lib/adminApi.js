@@ -1,9 +1,23 @@
-const rawApiUrl = (import.meta.env.VITE_API_URL ?? '/api').trim()
+function getApiUrl() {
+    const envUrl = import.meta.env.VITE_API_URL
+    if (typeof envUrl === 'string') {
+        const trimmed = envUrl.trim()
+        if (trimmed.startsWith('/') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+            return trimmed.replace(/\/$/, '')
+        }
+        if (trimmed !== '') {
+            console.warn(`[API] VITE_API_URL "${envUrl}" tidak valid. Harus diawali dengan "/", "http://", atau "https://". Memakai default "/api".`)
+        }
+    }
+    return '/api'
+}
+
+const rawApiUrl = getApiUrl()
 
 function getBaseAndCsrf() {
     if (rawApiUrl.startsWith('/')) {
         return {
-            apiPrefix: rawApiUrl.replace(/\/$/, ''),
+            apiPrefix: rawApiUrl,
             csrfUrl: '/sanctum/csrf-cookie',
             serverBase: '',
         }
@@ -12,13 +26,13 @@ function getBaseAndCsrf() {
         const urlObj = new URL(rawApiUrl)
         const origin = urlObj.origin
         return {
-            apiPrefix: rawApiUrl.replace(/\/$/, ''),
+            apiPrefix: rawApiUrl,
             csrfUrl: `${origin}/sanctum/csrf-cookie`,
             serverBase: origin,
         }
     } catch {
         return {
-            apiPrefix: rawApiUrl.replace(/\/$/, ''),
+            apiPrefix: rawApiUrl,
             csrfUrl: '/sanctum/csrf-cookie',
             serverBase: '',
         }
