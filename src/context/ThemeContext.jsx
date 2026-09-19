@@ -1,22 +1,25 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 
 const ThemeContext = createContext(null)
-const KEY = 'portofolio-theme'
+const KEY = 'theme'
 
 function initialTheme() {
   try {
-    const saved = localStorage.getItem(KEY)
+    const saved = localStorage.getItem(KEY) || localStorage.getItem('portofolio-theme')
     if (saved === 'light' || saved === 'dark') return saved
   } catch { /* storage tidak tersedia */ }
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return 'light'
 }
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(initialTheme)
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    try { localStorage.setItem(KEY, theme) } catch { /* abaikan */ }
+    document.documentElement.setAttribute('data-theme', theme)
+    try {
+      localStorage.setItem(KEY, theme)
+      localStorage.setItem('portofolio-theme', theme)
+    } catch { /* abaikan */ }
   }, [theme])
 
   const toggle = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
@@ -24,3 +27,4 @@ export function ThemeProvider({ children }) {
 }
 
 export const useTheme = () => useContext(ThemeContext)
+

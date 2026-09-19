@@ -9,8 +9,8 @@ import ProjectDetail from './pages/ProjectDetail'
 import NotFound from './pages/NotFound'
 import { AuthProvider } from './admin/context/AuthContext'
 import RequireAuth from './admin/components/RequireAuth'
-
 import ErrorPage from './components/ErrorPage'
+import { useI18n } from './i18n/I18nProvider'
 
 const AdminLogin = lazy(() => import('./admin/pages/AdminLogin'))
 const AdminLayout = lazy(() => import('./admin/components/AdminLayout'))
@@ -20,9 +20,10 @@ const AdminMessages = lazy(() => import('./admin/pages/AdminMessages'))
 
 function PublicLayout() {
   const { data, loading, source } = usePortfolio()
+  const { t, lang } = useI18n()
 
   if (loading) {
-    return <div className="loading" role="status">Memuat portofolio…</div>
+    return <div className="loading" role="status">{lang === 'en' ? 'Loading portfolio…' : 'Memuat portofolio…'}</div>
   }
 
   const profile = data?.profile || {}
@@ -30,7 +31,7 @@ function PublicLayout() {
 
   return (
     <>
-      <a href="#main" className="skip-link">Lewati ke konten</a>
+      <a href="#main" className="skip-link">{lang === 'en' ? 'Skip to content' : 'Lewati ke konten'}</a>
       <ScrollToHash ready={!loading} />
       <Navbar name={name} />
       <main id="main">
@@ -38,7 +39,7 @@ function PublicLayout() {
       </main>
       <Footer name={profile.name ?? 'Portofolio'} />
       {source === 'fallback' && (
-        <p className="dev-banner">Data sedang tidak bisa dimuat, menampilkan versi tersimpan.</p>
+        <p className="dev-banner">{t('projects.fallbackNotice')}</p>
       )}
     </>
   )

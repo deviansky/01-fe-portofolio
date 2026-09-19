@@ -14,24 +14,46 @@ function getApiUrl() {
 
 const BASE_URL = getApiUrl()
 
+function getActiveLang() {
+  if (typeof window === 'undefined') return 'id'
+  const params = new URLSearchParams(window.location.search)
+  const langParam = params.get('lang')?.toLowerCase()
+  if (langParam === 'id' || langParam === 'en') return langParam
+  const saved = localStorage.getItem('portfolio_lang')
+  if (saved === 'id' || saved === 'en') return saved
+  return (navigator.language || '').toLowerCase().startsWith('id') ? 'id' : 'en'
+}
+
 export class ApiError extends Error {
   constructor(message, status, errors = {}) {
     super(message)
     this.status = status
-    this.errors = errors // error validasi Laravel (422): { field: ['pesan'] }
+    this.errors = errors
   }
 }
 
-async function request(path, { method = 'GET', body, signal } = {}) {
+async function request(path, { method = 'GET', body, signal, lang } = {}) {
   let res
   try {
+    const activeLang = lang || getActiveLang()
     const cleanPath = path.startsWith('/') ? path : `/${path}`
-    const fullUrl = `${BASE_URL}${cleanPath}`
+
+    // Append ?lang= to public requests
+    const urlObj = new URL(`${BASE_URL}${cleanPath}`, window.location.origin)
+    if (!urlObj.searchParams.has('lang')) {
+      urlObj.searchParams.set('lang', activeLang)
+    }
+
+    const fullUrl = BASE_URL.startsWith('http://') || BASE_URL.startsWith('https://')
+      ? urlObj.toString()
+      : urlObj.pathname + urlObj.search
+
     res = await fetch(fullUrl, {
       method,
       signal,
       headers: {
         Accept: 'application/json',
+        'Accept-Language': activeLang === 'en' ? 'en-US,en;q=0.9' : 'id-ID,id;q=0.9',
         ...(body ? { 'Content-Type': 'application/json' } : {}),
       },
       body: body ? JSON.stringify(body) : undefined,
@@ -57,9 +79,9 @@ async function request(path, { method = 'GET', body, signal } = {}) {
 }
 
 export const api = {
-  getPortfolio: (signal) => request('/portfolio', { signal }),
-  getProject: (slug, signal) => request(`/projects/${encodeURIComponent(slug)}`, { signal }),
-  sendMessage: (payload) => request('/contact', { method: 'POST', body: payload }),
+  getPortfolio: (signal, lang) => request('/portfolio', { signal, lang }),
+  getProject: (slug, signal, lang) => request(`/projects/${encodeURIComponent(slug)}`, { signal, lang }),
+  sendMessage: (payload, lang) => request('/contact', { method: 'POST', body: payload, lang }),
 
   // Admin / Manager GUI methods
   getAdminProjects: (params = {}, signal) => {

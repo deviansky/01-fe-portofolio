@@ -1,10 +1,12 @@
 import Entry from '../components/Entry'
+import { useI18n } from '../i18n/I18nProvider'
 
 export default function Education({ educations = [], certifications = [] }) {
+  const { t, lang } = useI18n()
   if (!educations.length && !certifications.length) return null
   return (
     <section className="section container split" id="pendidikan">
-      <h2 className="section-title">Pendidikan</h2>
+      <h2 className="section-title">{t('education.title')}</h2>
       <div className="split-body">
         {educations.length > 0 && (
           <div className="entries-list">
@@ -15,7 +17,7 @@ export default function Education({ educations = [], certifications = [] }) {
         )}
         {certifications.length > 0 && (
           <div className="certifications-block">
-            <h3 className="sub-title">Sertifikasi</h3>
+            <h3 className="sub-title">{lang === 'en' ? 'Certifications' : 'Sertifikasi'}</h3>
             <ul className="plain-list">
               {certifications.map((c) => (
                 <li key={c.id}>

@@ -10,24 +10,22 @@ export const fallbackPortfolio = {
     name: 'David Reza Widhiwipati',
     short_name: 'David Reza W.',
     headline: 'Fullstack Developer',
-    tagline:
-      'Saya membangun sistem yang dipakai tim operasional setiap hari: modul ERP, aplikasi untuk tim lapangan, dan platform CRM berbasis web.',
+    tagline: 'Saya seorang software developer yang berfokus pada pengembangan aplikasi web dan mobile, dengan pengalaman membangun solusi digital untuk mendukung kebutuhan dan proses bisnis.',
     bio: [
       'Fullstack developer yang terbiasa dengan sistem berskala perusahaan. Sehari-hari saya mengerjakan modul ERP dengan Laravel dan React, aplikasi mobile React Native untuk tim sales di lapangan, sekaligus menjadi maintainer dan code reviewer lintas proyek.',
-      'Saat ini saya mahasiswa tingkat akhir D4 Teknologi Rekayasa Perangkat Lunak di Sekolah Vokasi IPB University.',
+      'Saya menempuh pendidikan D4 Teknologi Rekayasa Perangkat Lunak di Sekolah Vokasi IPB University.',
     ],
-    location: 'Indonesia', // TODO: kota kamu
-    email: '', // TODO: email kerja
+    location: 'Indonesia',
+    email: '',
     phone: '',
     avatar_url: '',
-    cv_url: '', // TODO: link CV (PDF)
+    cv_url: '',
     socials: {
-      github: '', // TODO
-      linkedin: '', // TODO
+      github: '',
+      linkedin: '',
       instagram: '',
     },
     available_for_work: true,
-    // Ditampilkan di "surat jalan" pada hero: apa yang bisa kamu kerjakan.
     focus_areas: [
       { title: 'Modul ERP', detail: 'Laravel + React' },
       { title: 'Aplikasi tim lapangan', detail: 'React Native' },
@@ -37,19 +35,20 @@ export const fallbackPortfolio = {
 
   skills: [
     { id: 1, name: 'React', category: 'frontend' },
-    { id: 2, name: 'Vite', category: 'frontend' },
-    { id: 3, name: 'JavaScript', category: 'frontend' },
-    { id: 4, name: 'TypeScript', category: 'frontend' },
-    { id: 5, name: 'Bootstrap / React Bootstrap', category: 'frontend' },
-    { id: 6, name: 'Laravel', category: 'backend' },
-    { id: 7, name: 'PHP', category: 'backend' },
-    { id: 8, name: 'REST API', category: 'backend' },
-    { id: 9, name: 'Role-based access control', category: 'backend' },
-    { id: 10, name: 'React Native CLI', category: 'mobile' },
-    { id: 11, name: 'WatermelonDB (offline-first)', category: 'mobile' },
-    { id: 12, name: 'MySQL', category: 'database' },
-    { id: 13, name: 'Git', category: 'tools' },
-    { id: 14, name: 'Code review', category: 'tools' },
+    { id: 2, name: 'Tailwind CSS', category: 'frontend' },
+    { id: 3, name: 'Node.js', category: 'backend' },
+    { id: 4, name: 'Express.js', category: 'backend' },
+    { id: 5, name: 'Flask', category: 'backend' },
+    { id: 6, name: 'Power BI', category: 'visual_data' },
+    { id: 7, name: 'Python', category: 'ml_cv' },
+    { id: 8, name: 'TensorFlow', category: 'ml_cv' },
+    { id: 9, name: 'OpenCV', category: 'ml_cv' },
+    { id: 10, name: 'Git', category: 'tools' },
+    { id: 11, name: 'Unity', category: 'tools' },
+    { id: 12, name: 'Figma', category: 'tools' },
+    { id: 13, name: 'Belajar mandiri', category: 'soft_skill' },
+    { id: 14, name: 'Kerja sama tim', category: 'soft_skill' },
+    { id: 15, name: 'Komunikasi', category: 'soft_skill' },
   ],
 
   projects: [
@@ -144,20 +143,20 @@ export const fallbackPortfolio = {
     {
       id: 5,
       slug: 'mim-company-profile',
-      title: 'Website Company Profile MIM',
+      title: 'Company Profile PT Mitra Indo Maju',
       summary:
-        'Website profil perusahaan dengan katalog produk per kategori minuman.',
+        'Pengembangan dan pemeliharaan website company profile berbasis WordPress, meliputi implementasi permintaan perubahan serta pembaruan di halaman.',
       category: 'web',
-      role: 'Frontend developer',
-      stack: ['React', 'React Bootstrap'],
-      thumbnail_url: '',
+      role: 'Web Developer',
+      stack: ['WordPress', 'Elementor', 'HTML', 'CSS', 'JavaScript'],
+      thumbnail_url: 'storage/projects/Ik5v6TsK7RebgIaKyET4dMuY4vOKpTUWau37RAL6.png',
       repo_url: '',
-      demo_url: '', // TODO: URL live kalau boleh ditampilkan
-      is_featured: false,
+      demo_url: 'https://ptmitraindomaju.com/',
+      is_featured: true,
       is_confidential: false,
-      year: 2026,
+      year: 2025,
       description:
-        'Redesain halaman portfolio brand menjadi katalog produk dengan pemilih kategori visual, hero per kategori, dan kartu produk detail.',
+        '<h2>Gambaran Proyek</h2><p>Website <em>company profile</em> PT Mitra Indo Maju, perusahaan distribusi minuman, telah berjalan menggunakan WordPress sebelum saya bergabung. Saya bertanggung jawab untuk melakukan pemeliharaan dan pengembangan website, termasuk mengimplementasikan permintaan perubahan dari tim tanpa mengganggu halaman dan komponen yang sudah ada.</p><h2>Yang Saya Kerjakan</h2><ul><li><p>Mengimplementasikan perubahan konten dan tampilan sesuai kebutuhan tim perusahaan.</p></li><li><p>Memperbarui dan mengembangkan beranda, meliputi <em>hero section</em>, informasi perusahaan, <em>brand carousel</em>, berita, dan <em>event</em>.</p></li><li><p>Menyesuaikan halaman lainnya untuk menjaga konsistensi desain dan pengalaman pengguna.</p></li><li><p>Mengembangkan fitur dan bagian baru, seperti katalog produk berdasarkan kategori minuman dan peta distributor interaktif.</p></li></ul><h2>Pendekatan Teknis</h2><p>Website menggunakan Elementor versi gratis, sehingga bagian dengan kebutuhan desain dan interaksi khusus diimplementasikan melalui <em>custom HTML widget</em>. CSS pada setiap <em>widget</em> di-<em>scope</em> secara terpisah mecegah konflik antar komponen dan memastikan perubahan tidak memengaruhi bagian lain maupun <em>default styling</em> dari tema WordPress.</p>',
       highlights: [],
       images: [],
     },

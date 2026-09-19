@@ -4,6 +4,7 @@ import { categoryLabel } from '../../lib/format'
 import ProjectCover from '../ProjectCover'
 import Stack from '../Stack'
 import RichContent from '../RichContent'
+import { useI18n } from '../../i18n/I18nProvider'
 
 function GalleryItem({ img, projectTitle }) {
     const [failed, setFailed] = useState(false)
@@ -27,6 +28,9 @@ function GalleryItem({ img, projectTitle }) {
  * Memuat markup struktur halaman detail proyek tanpa data fetching.
  */
 export default function ProjectDetailContent({ project, backLink, renderLink }) {
+    const { t, lang } = useI18n()
+    const isEn = lang === 'en'
+
     if (!project) return null
 
     return (
@@ -34,16 +38,16 @@ export default function ProjectDetailContent({ project, backLink, renderLink }) 
             {backLink ? (
                 backLink
             ) : (
-                <Link to="/#proyek" className="back-link">Semua proyek</Link>
+                <Link to="/#proyek" className="back-link">{isEn ? 'All projects' : 'Semua proyek'}</Link>
             )}
 
             <header className="detail-head">
                 <h1>{project.title}</h1>
                 <p className="detail-summary">{project.summary}</p>
                 <dl className="detail-meta">
-                    <div><dt>Peran</dt><dd>{project.role}</dd></div>
-                    <div><dt>Tahun</dt><dd>{project.year}</dd></div>
-                    <div><dt>Kategori</dt><dd>{categoryLabel(project.category)}</dd></div>
+                    <div><dt>{t('projects.role')}</dt><dd>{project.role}</dd></div>
+                    <div><dt>{t('projects.year')}</dt><dd>{project.year}</dd></div>
+                    <div><dt>{t('projects.category')}</dt><dd>{categoryLabel(project.category, lang)}</dd></div>
                 </dl>
                 <Stack items={project.stack} />
             </header>
@@ -54,7 +58,7 @@ export default function ProjectDetailContent({ project, backLink, renderLink }) 
                 <RichContent html={project.description} />
                 {project.highlights?.length > 0 && (
                     <>
-                        <h2>Yang saya kerjakan</h2>
+                        <h2>{t('projects.whatIDid')}</h2>
                         <ul className="ticks">{project.highlights.map((h) => <li key={h}>{h}</li>)}</ul>
                     </>
                 )}
@@ -73,10 +77,10 @@ export default function ProjectDetailContent({ project, backLink, renderLink }) 
                     renderLink(project)
                 ) : (
                     <>
-                        {project.demo_url && <a className="btn btn-primary" href={project.demo_url} target="_blank" rel="noreferrer">Buka situs</a>}
-                        {project.repo_url && <a className="btn btn-ghost" href={project.repo_url} target="_blank" rel="noreferrer">Lihat kode</a>}
+                        {project.demo_url && <a className="btn btn-primary" href={project.demo_url} target="_blank" rel="noreferrer">{t('projects.viewSite')}</a>}
+                        {project.repo_url && <a className="btn btn-ghost" href={project.repo_url} target="_blank" rel="noreferrer">{t('projects.viewCode')}</a>}
                         {project.is_confidential && !project.repo_url && (
-                            <p className="muted">Kode dan data proyek ini milik perusahaan, jadi tidak dibagikan publik. Detail teknis bisa dibahas saat wawancara.</p>
+                            <p className="muted">{t('projects.confidentialNotice')}</p>
                         )}
                     </>
                 )}

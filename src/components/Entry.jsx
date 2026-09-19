@@ -1,4 +1,5 @@
 import { formatPeriod } from '../lib/format'
+import { useI18n } from '../i18n/I18nProvider'
 
 function getInitials(name = '') {
     if (!name) return ''
@@ -8,6 +9,9 @@ function getInitials(name = '') {
 }
 
 export default function Entry({ item, type = 'experience' }) {
+    const { lang } = useI18n()
+    const isEn = lang === 'en'
+
     const isExp = type === 'experience'
     const title = isExp ? item.position : item.institution
     const subtitleParts = isExp
@@ -21,7 +25,7 @@ export default function Entry({ item, type = 'experience' }) {
     ].filter(Boolean)
     const locationText = metaParts.join(', ')
 
-    const periodText = formatPeriod(item.started_at, item.ended_at, item.is_current)
+    const periodText = formatPeriod(item.started_at, item.ended_at, item.is_current, lang)
     const initials = getInitials(isExp ? item.company : item.institution)
 
     return (
@@ -41,7 +45,7 @@ export default function Entry({ item, type = 'experience' }) {
                 {item.description && <p className="entry-description">{item.description}</p>}
                 {item.skills?.length > 0 && (
                     <p className="entry-skills">
-                        <strong>Keahlian:</strong> {item.skills.join(', ')}
+                        <strong>{isEn ? 'Skills:' : 'Keahlian:'}</strong> {item.skills.join(', ')}
                     </p>
                 )}
             </div>

@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { api } from '../lib/api'
 import { contactConfig } from '../config/contactConfig'
+import { useI18n } from '../i18n/I18nProvider'
 
 const EMPTY = { name: '', email: '', subject: '', message: '', website: '' }
 
 export default function Contact({ profile }) {
+  const { t, lang } = useI18n()
   const [form, setForm] = useState(EMPTY)
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle') // idle | sending | sent | failed
@@ -17,9 +19,9 @@ export default function Contact({ profile }) {
 
   const validate = () => {
     const er = {}
-    if (!form.name.trim()) er.name = 'Isi nama kamu.'
-    if (!/^\S+@\S+\.\S+$/.test(form.email)) er.email = 'Isi email yang valid, contoh: nama@domain.com.'
-    if (form.message.trim().length < 10) er.message = 'Pesan minimal 10 karakter.'
+    if (!form.name.trim()) er.name = lang === 'en' ? 'Please fill in your name.' : 'Isi nama kamu.'
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) er.email = lang === 'en' ? 'Please enter a valid email address.' : 'Isi email yang valid, contoh: nama@domain.com.'
+    if (form.message.trim().length < 10) er.message = lang === 'en' ? 'Message must be at least 10 characters.' : 'Pesan minimal 10 karakter.'
     return er
   }
 
@@ -30,7 +32,7 @@ export default function Contact({ profile }) {
 
     setStatus('sending')
     try {
-      await api.sendMessage(form)
+      await api.sendMessage(form, lang)
       setStatus('sent')
       setForm(EMPTY)
     } catch (err) {
@@ -38,7 +40,9 @@ export default function Contact({ profile }) {
         setErrors(Object.fromEntries(Object.entries(err.errors).map(([k, v]) => [k, v[0]])))
         setStatus('idle')
       } else {
-        setFailMessage(err.status === 429 ? 'Terlalu banyak pesan dalam waktu singkat. Coba lagi beberapa menit lagi.' : err.message)
+        setFailMessage(err.status === 429
+          ? (lang === 'en' ? 'Too many messages in a short time. Please try again in a few minutes.' : 'Terlalu banyak pesan dalam waktu singkat. Coba lagi beberapa menit lagi.')
+          : (err.message || t('contact.errorGeneral')))
         setStatus('failed')
       }
     }
@@ -64,9 +68,9 @@ export default function Contact({ profile }) {
         {/* Kolom Kiri: Judul & Informasi Kontak */}
         <div className="contact-left">
           <div className="contact-header">
-            <h2 className="contact-title">{"Hubungi\nsaya."}</h2>
+            <h2 className="contact-title">{lang === 'en' ? 'Get in\ntouch.' : 'Hubungi\nsaya.'}</h2>
             <p className="contact-desc">
-              Punya proyek, lowongan, atau sekadar ingin berdiskusi soal sistem? Kirim pesan lewat form atau hubungi saya langsung.
+              {t('contact.subtitle')}
             </p>
           </div>
 
@@ -111,20 +115,20 @@ export default function Contact({ profile }) {
         <div className="contact-form-block">
           {status === 'sent' ? (
             <div className="contact-notice contact-notice-ok" role="status">
-              <p>Pesan terkirim. Balasan akan dikirim ke email yang kamu isi.</p>
+              <p>{t('contact.successMsg')}</p>
               <button type="button" className="contact-submit-btn" style={{ marginTop: '16px' }} onClick={() => setStatus('idle')}>
-                Kirim pesan lain
+                {lang === 'en' ? 'Send another message' : 'Kirim pesan lain'}
               </button>
             </div>
           ) : (
             <form className="contact-form" onSubmit={submit} noValidate>
               <div className="contact-field">
-                <label htmlFor="c-name">Nama</label>
+                <label htmlFor="c-name">{t('contact.nameLabel')}</label>
                 <input
                   id="c-name"
                   name="name"
                   type="text"
-                  placeholder="Nama lengkap"
+                  placeholder={t('contact.namePlaceholder')}
                   value={form.name}
                   onChange={update}
                   autoComplete="name"
@@ -136,12 +140,12 @@ export default function Contact({ profile }) {
               </div>
 
               <div className="contact-field">
-                <label htmlFor="c-email">Email</label>
+                <label htmlFor="c-email">{t('contact.emailLabel')}</label>
                 <input
                   id="c-email"
                   name="email"
                   type="email"
-                  placeholder="email@anda.com"
+                  placeholder={t('contact.emailPlaceholder')}
                   value={form.email}
                   onChange={update}
                   autoComplete="email"
@@ -153,12 +157,12 @@ export default function Contact({ profile }) {
               </div>
 
               <div className="contact-field">
-                <label htmlFor="c-subject">Subjek (opsional)</label>
+                <label htmlFor="c-subject">{lang === 'en' ? 'Subject (optional)' : 'Subjek (opsional)'}</label>
                 <input
                   id="c-subject"
                   name="subject"
                   type="text"
-                  placeholder="Topik pesan"
+                  placeholder={lang === 'en' ? 'Message subject' : 'Topik pesan'}
                   value={form.subject}
                   onChange={update}
                   className="contact-input"
@@ -166,12 +170,12 @@ export default function Contact({ profile }) {
               </div>
 
               <div className="contact-field">
-                <label htmlFor="c-message">Pesan</label>
+                <label htmlFor="c-message">{t('contact.messageLabel')}</label>
                 <textarea
                   id="c-message"
                   name="message"
                   rows={5}
-                  placeholder="Tulis pesan Anda di sini"
+                  placeholder={t('contact.messagePlaceholder')}
                   value={form.message}
                   onChange={update}
                   aria-invalid={!!errors.message}
@@ -196,15 +200,15 @@ export default function Contact({ profile }) {
               {status === 'failed' && (
                 <div className="contact-notice contact-notice-err" role="alert">
                   <p>
-                    Pesan belum terkirim: {failMessage}
-                    {profile?.email ? ` Kamu juga bisa email langsung ke ${profile.email}.` : ''}
+                    {lang === 'en' ? 'Message not sent:' : 'Pesan belum terkirim:'} {failMessage}
+                    {profile?.email ? (lang === 'en' ? ` You can also email directly to ${profile.email}.` : ` Kamu juga bisa email langsung ke ${profile.email}.`) : ''}
                   </p>
                 </div>
               )}
 
               <div className="contact-actions">
                 <button type="submit" className="contact-submit-btn" disabled={status === 'sending'}>
-                  <span>{status === 'sending' ? 'Mengirim…' : 'Kirim pesan'}</span>
+                  <span>{status === 'sending' ? t('contact.sendingBtn') : t('contact.sendBtn')}</span>
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>

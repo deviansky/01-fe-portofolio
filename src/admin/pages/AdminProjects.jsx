@@ -27,6 +27,9 @@ export default function AdminProjects() {
     const [deleteModal, setDeleteModal] = useState({ isOpen: false, project: null })
     const [deleting, setDeleting] = useState(false)
 
+    // Helper untuk mengekstrak string judul dari objek translatable
+    const getTitle = (t) => (typeof t === 'object' && t !== null ? (t.id || t.en || '') : (t || ''))
+
     // Sync searchInput when qParam in URL changes externally
     useEffect(() => {
         setSearchInput(qParam)
@@ -75,7 +78,6 @@ export default function AdminProjects() {
             setProjects(data.data || [])
             setMeta(data.meta || { current_page: 1, last_page: 1, total: data.data?.length || 0 })
 
-            // Fetch unfiltered count once or set totalAll when no filter is active
             if (!isFilterActive) {
                 setTotalAll(data.meta?.total || data.data?.length || 0)
             }
@@ -133,9 +135,8 @@ export default function AdminProjects() {
                 </Link>
             </div>
 
-            {/* Toolbar Row (No container card, 12px margin to table) */}
+            {/* Toolbar Row */}
             <div className="admin-toolbar-row">
-                {/* Search Input */}
                 <div className="admin-search-wrapper">
                     <span className="admin-search-icon">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -152,7 +153,6 @@ export default function AdminProjects() {
                     />
                 </div>
 
-                {/* Category & Status Selects (Mobile Grid Container) */}
                 <div className="admin-mobile-select-grid" style={{ display: 'contents' }}>
                     <select
                         id="filter-category"
@@ -178,14 +178,12 @@ export default function AdminProjects() {
                     </select>
                 </div>
 
-                {/* Reset Filter Button (Shown ONLY when filter active) */}
                 {isFilterActive && (
                     <button type="button" onClick={handleResetFilters} className="admin-reset-btn">
                         Reset filter
                     </button>
                 )}
 
-                {/* Toolbar Right Group: Count & Sort */}
                 <div className="admin-toolbar-right">
                     <span className="admin-count-text">
                         {isFilterActive && totalAll > 0
@@ -222,7 +220,7 @@ export default function AdminProjects() {
                 </div>
             )}
 
-            {/* Empty State — No projects at all */}
+            {/* Empty State */}
             {!loading && !error && projects.length === 0 && !isFilterActive && (
                 <div className="admin-empty-state">
                     <p className="admin-empty-text">Belum ada proyek. Tambahkan proyek pertama kamu.</p>
@@ -232,7 +230,6 @@ export default function AdminProjects() {
                 </div>
             )}
 
-            {/* Empty State — Filter empty */}
             {!loading && !error && projects.length === 0 && isFilterActive && (
                 <div className="admin-empty-state">
                     <p className="admin-empty-text">Tidak ada proyek yang cocok.</p>
@@ -251,6 +248,7 @@ export default function AdminProjects() {
                                 <tr>
                                     <th>Sampul</th>
                                     <th>Judul</th>
+                                    <th>EN</th>
                                     <th>Kategori</th>
                                     <th>Tahun</th>
                                     <th>Status</th>
@@ -260,128 +258,152 @@ export default function AdminProjects() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {projects.map((project) => (
-                                    <tr key={project.id}>
-                                        <td>
-                                            <div className="admin-cover-mini">
-                                                <ProjectCover project={project} />
-                                            </div>
-                                        </td>
+                                {projects.map((project) => {
+                                    const displayTitle = getTitle(project.title)
+                                    // format project title string untuk ProjectCover
+                                    const projForCover = { ...project, title: displayTitle }
 
-                                        <td>
-                                            <div className="admin-project-meta">
-                                                <Link to={`/admin/proyek/${project.id}`} className="admin-project-title-link">
-                                                    {project.title}
-                                                </Link>
-                                                <span className="admin-project-slug">/proyek/{project.slug}</span>
-                                            </div>
-                                        </td>
+                                    return (
+                                        <tr key={project.id}>
+                                            <td>
+                                                <div className="admin-cover-mini">
+                                                    <ProjectCover project={projForCover} />
+                                                </div>
+                                            </td>
 
-                                        <td>{categoryLabel(project.category)}</td>
-                                        <td>{project.year}</td>
+                                            <td>
+                                                <div className="admin-project-meta">
+                                                    <Link to={`/admin/proyek/${project.id}`} className="admin-project-title-link">
+                                                        {displayTitle}
+                                                    </Link>
+                                                    <span className="admin-project-slug">/proyek/{project.slug}</span>
+                                                </div>
+                                            </td>
 
-                                        <td>
-                                            <span className={`admin-badge admin-badge-${project.status}`}>
-                                                {project.status === 'published' ? 'Published' : 'Draft'}
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            {project.is_featured && (
-                                                <span className="admin-badge admin-badge-featured">
-                                                    Unggulan
-                                                </span>
-                                            )}
-                                        </td>
-
-                                        <td>{formatDate(project.updated_at)}</td>
-
-                                        <td>
-                                            <div className="admin-actions">
-                                                <Link to={`/admin/proyek/${project.id}`} className="admin-action-link">
-                                                    Edit
-                                                </Link>
-
-                                                {project.status === 'published' && (
-                                                    <a
-                                                        href={`/proyek/${project.slug}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="admin-action-link"
-                                                    >
-                                                        Lihat di situs
-                                                    </a>
+                                            <td>
+                                                {project.has_english ? (
+                                                    <span className="admin-badge admin-badge-published" title="Terjemahan Bahasa Inggris tersedia" style={{ fontSize: '0.75rem', padding: '2px 6px' }}>
+                                                        ✓ EN
+                                                    </span>
+                                                ) : (
+                                                    <span style={{ color: 'var(--ink-soft)', fontSize: '0.85rem' }}>-</span>
                                                 )}
+                                            </td>
 
-                                                <button
-                                                    type="button"
-                                                    className="admin-action-btn-delete"
-                                                    onClick={() => setDeleteModal({ isOpen: true, project })}
-                                                >
-                                                    Hapus
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                            <td>{categoryLabel(project.category)}</td>
+                                            <td>{project.year}</td>
+
+                                            <td>
+                                                <span className={`admin-badge admin-badge-${project.status}`}>
+                                                    {project.status === 'published' ? 'Published' : 'Draft'}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                {project.is_featured && (
+                                                    <span className="admin-badge admin-badge-featured">
+                                                        Unggulan
+                                                    </span>
+                                                )}
+                                            </td>
+
+                                            <td>{formatDate(project.updated_at)}</td>
+
+                                            <td>
+                                                <div className="admin-actions">
+                                                    <Link to={`/admin/proyek/${project.id}`} className="admin-action-link">
+                                                        Edit
+                                                    </Link>
+
+                                                    {project.status === 'published' && (
+                                                        <a
+                                                            href={`/proyek/${project.slug}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="admin-action-link"
+                                                        >
+                                                            Lihat di situs
+                                                        </a>
+                                                    )}
+
+                                                    <button
+                                                        type="button"
+                                                        className="admin-action-btn-delete"
+                                                        onClick={() => setDeleteModal({ isOpen: true, project })}
+                                                    >
+                                                        Hapus
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
                             </tbody>
                         </table>
                     </div>
 
                     {/* Mobile Cards View */}
                     <div className="admin-cards-list">
-                        {projects.map((project) => (
-                            <div key={project.id} className="admin-project-card">
-                                <div className="admin-card-header">
-                                    <div className="admin-cover-mini">
-                                        <ProjectCover project={project} />
+                        {projects.map((project) => {
+                            const displayTitle = getTitle(project.title)
+                            const projForCover = { ...project, title: displayTitle }
+
+                            return (
+                                <div key={project.id} className="admin-project-card">
+                                    <div className="admin-card-header">
+                                        <div className="admin-cover-mini">
+                                            <ProjectCover project={projForCover} />
+                                        </div>
+                                        <div className="admin-project-meta" style={{ flex: 1 }}>
+                                            <Link to={`/admin/proyek/${project.id}`} className="admin-project-title-link">
+                                                {displayTitle}
+                                            </Link>
+                                            <span className="admin-project-slug">/proyek/{project.slug}</span>
+                                            <div style={{ display: 'flex', gap: 'var(--s-2)', marginTop: 'var(--s-1)', alignItems: 'center' }}>
+                                                <span className={`admin-badge admin-badge-${project.status}`}>
+                                                    {project.status === 'published' ? 'Published' : 'Draft'}
+                                                </span>
+                                                {project.has_english && (
+                                                    <span className="admin-badge admin-badge-published" style={{ fontSize: '0.7rem', padding: '1px 5px' }}>✓ EN</span>
+                                                )}
+                                                {project.is_featured && (
+                                                    <span className="admin-badge admin-badge-featured">Unggulan</span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="admin-project-meta" style={{ flex: 1 }}>
-                                        <Link to={`/admin/proyek/${project.id}`} className="admin-project-title-link">
-                                            {project.title}
-                                        </Link>
-                                        <span className="admin-project-slug">/proyek/{project.slug}</span>
-                                        <div style={{ display: 'flex', gap: 'var(--s-2)', marginTop: 'var(--s-1)' }}>
-                                            <span className={`admin-badge admin-badge-${project.status}`}>
-                                                {project.status === 'published' ? 'Published' : 'Draft'}
-                                            </span>
-                                            {project.is_featured && (
-                                                <span className="admin-badge admin-badge-featured">Unggulan</span>
+
+                                    <div className="admin-card-footer">
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>
+                                            {categoryLabel(project.category)} · {project.year} · {formatDate(project.updated_at)}
+                                        </span>
+
+                                        <div className="admin-actions">
+                                            <Link to={`/admin/proyek/${project.id}`} className="admin-action-link">
+                                                Edit
+                                            </Link>
+                                            {project.status === 'published' && (
+                                                <a
+                                                    href={`/proyek/${project.slug}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="admin-action-link"
+                                                >
+                                                    Lihat di situs
+                                                </a>
                                             )}
+                                            <button
+                                                type="button"
+                                                className="admin-action-btn-delete"
+                                                onClick={() => setDeleteModal({ isOpen: true, project })}
+                                            >
+                                                Hapus
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="admin-card-footer">
-                                    <span style={{ fontSize: '0.75rem', color: 'var(--ink-soft)' }}>
-                                        {categoryLabel(project.category)} · {project.year} · {formatDate(project.updated_at)}
-                                    </span>
-
-                                    <div className="admin-actions">
-                                        <Link to={`/admin/proyek/${project.id}`} className="admin-action-link">
-                                            Edit
-                                        </Link>
-                                        {project.status === 'published' && (
-                                            <a
-                                                href={`/proyek/${project.slug}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="admin-action-link"
-                                            >
-                                                Lihat di situs
-                                            </a>
-                                        )}
-                                        <button
-                                            type="button"
-                                            className="admin-action-btn-delete"
-                                            onClick={() => setDeleteModal({ isOpen: true, project })}
-                                        >
-                                            Hapus
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
 
                     {/* Pagination */}
@@ -417,7 +439,7 @@ export default function AdminProjects() {
                     <div className="admin-modal-card" onClick={(e) => e.stopPropagation()}>
                         <h3 className="admin-modal-title">Konfirmasi Hapus</h3>
                         <div className="admin-modal-body">
-                            Hapus proyek &quot;{deleteModal.project.title}&quot;? Tindakan ini tidak bisa dibatalkan.
+                            Hapus proyek &quot;{getTitle(deleteModal.project.title)}&quot;? Tindakan ini tidak bisa dibatalkan.
                         </div>
                         <div className="admin-modal-footer">
                             <button

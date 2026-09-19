@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useParams, useNavigate, useLocation, useBlocker, Link } from 'react-router-dom'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import LinkExtension from '@tiptap/extension-link'
 import ImageExtension from '@tiptap/extension-image'
 import Placeholder from '@tiptap/extension-placeholder'
-import DOMPurify from 'dompurify'
 
 import { PROJECT_CATEGORIES } from '../../lib/format'
 import { api } from '../../lib/api'
@@ -29,6 +28,14 @@ function slugify(text) {
         .replace(/-+$/, '')
 }
 
+// Helper untuk memastikan nilai translatable berupa object { id: '', en: '' }
+function normalizeTranslatable(val) {
+    if (typeof val === 'object' && val !== null) {
+        return { id: val.id || '', en: val.en || '' }
+    }
+    return { id: val || '', en: '' }
+}
+
 export default function AdminProjectEditor() {
     const { id } = useParams()
     const navigate = useNavigate()
@@ -50,23 +57,30 @@ export default function AdminProjectEditor() {
     const [errors, setErrors] = useState({})
     const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false)
 
+    // Active Language Tab for Editor: 'id' | 'en'
+    const [editorLang, setEditorLang] = useState('id')
+    const editorLangRef = useRef(editorLang)
+    useEffect(() => {
+        editorLangRef.current = editorLang
+    }, [editorLang])
+
     // Suggestion options from API & existing projects
     const [skillSuggestions, setSkillSuggestions] = useState([])
     const [tagInputText, setTagInputText] = useState('')
 
-    // Form State
+    // Form State with Translatable Objects
     const [formData, setFormData] = useState({
-        title: '',
+        title: { id: '', en: '' },
         slug: '',
         category: 'ERP & sistem internal',
         year: new Date().getFullYear().toString(),
-        role: '',
+        role: { id: '', en: '' },
         is_featured: false,
         is_confidential: false,
-        summary: '',
+        summary: { id: '', en: '' },
         thumbnail_path: '',
         thumbnail_url: '',
-        description: '',
+        description: { id: '', en: '' },
         highlights: [],
         stack: [],
         demo_url: '',
@@ -75,7 +89,7 @@ export default function AdminProjectEditor() {
         status: 'draft',
     })
 
-    // Debounced preview data (300ms) with fallback when fields are empty
+    // Debounced preview data (300ms)
     const [debouncedData, setDebouncedData] = useState(formData)
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -84,16 +98,27 @@ export default function AdminProjectEditor() {
         return () => clearTimeout(handler)
     }, [formData])
 
+    // Preview data formatted based on active tab language (or fallback)
     const previewData = useMemo(() => {
+        const getVal = (field) => {
+            const valObj = debouncedData[field]
+            if (typeof valObj === 'object' && valObj !== null) {
+                return valObj[editorLang] || valObj.id || ''
+            }
+            return valObj || ''
+        }
+
         return {
             ...debouncedData,
-            title: debouncedData.title?.trim() || 'Judul proyek',
+            title: getVal('title').trim() || (editorLang === 'en' ? 'Project Title' : 'Judul proyek'),
             category: debouncedData.category || 'ERP & sistem internal',
-            summary: debouncedData.summary?.trim() || 'Ringkasan singkat proyek akan muncul di sini.',
+            summary: getVal('summary').trim() || (editorLang === 'en' ? 'Short project summary will appear here.' : 'Ringkasan singkat proyek akan muncul di sini.'),
+            role: getVal('role'),
+            description: getVal('description'),
             year: debouncedData.year || new Date().getFullYear().toString(),
             stack: debouncedData.stack.length > 0 ? debouncedData.stack : ['Teknologi'],
         }
-    }, [debouncedData])
+    }, [debouncedData, editorLang])
 
     // Upload States
     const [coverProgress, setCoverProgress] = useState(0)
@@ -145,7 +170,7 @@ export default function AdminProjectEditor() {
         return () => window.removeEventListener('beforeunload', handleBeforeUnload)
     }, [])
 
-    // TipTap Editor
+    // TipTap Editor for Description
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -155,21 +180,32 @@ export default function AdminProjectEditor() {
                 placeholder: 'Ceritakan masalahnya, peran kamu, keputusan teknis, dan hasilnya.',
             }),
         ],
-        content: formData.description,
+        content: formData.description[editorLang] || '',
         onUpdate: ({ editor }) => {
+            if (!editor || editor.isDestroyed || !editor.schema) return
             const html = editor.getHTML()
-            setFormData((prev) => ({ ...prev, description: html }))
+            const currentLang = editorLangRef.current
+            setFormData((prev) => ({
+                ...prev,
+                description: {
+                    ...prev.description,
+                    [currentLang]: html,
+                },
+            }))
             setIsDirty(true)
             setSaveStatus('unsaved')
         },
     })
 
-    // Sync editor content when formData.description changes on initial load
+    // Sync editor content when active tab language changes or loading completes
     useEffect(() => {
-        if (editor && formData.description && editor.getHTML() !== formData.description) {
-            editor.commands.setContent(formData.description)
+        if (editor && !editor.isDestroyed && editor.schema && !loading) {
+            const currentDesc = formData.description[editorLang] || ''
+            if (editor.getHTML() !== currentDesc) {
+                editor.commands.setContent(currentDesc, false)
+            }
         }
-    }, [formData.description, editor])
+    }, [editorLang, editor, loading])
 
     const [showExtraDetails, setShowExtraDetails] = useState(false)
 
@@ -177,7 +213,6 @@ export default function AdminProjectEditor() {
     useEffect(() => {
         let isSubscribed = true
 
-        // Fetch skills from public portfolio API
         api.getPortfolio()
             .then((data) => {
                 if (!isSubscribed) return
@@ -186,7 +221,6 @@ export default function AdminProjectEditor() {
             })
             .catch(() => { })
 
-        // Fetch existing admin projects stack
         getAdminProjects({ page: 1 })
             .then((res) => {
                 if (!isSubscribed) return
@@ -207,17 +241,17 @@ export default function AdminProjectEditor() {
                         return
                     }
                     setFormData({
-                        title: data.title || '',
+                        title: normalizeTranslatable(data.title),
                         slug: data.slug || '',
                         category: data.category || 'web',
                         year: data.year ? data.year.toString() : new Date().getFullYear().toString(),
-                        role: data.role || '',
+                        role: normalizeTranslatable(data.role),
                         is_featured: Boolean(data.is_featured),
                         is_confidential: Boolean(data.is_confidential),
-                        summary: data.summary || '',
+                        summary: normalizeTranslatable(data.summary),
                         thumbnail_path: data.thumbnail_path || '',
                         thumbnail_url: data.thumbnail_url || '',
-                        description: data.description || '',
+                        description: normalizeTranslatable(data.description),
                         highlights: data.highlights || [],
                         stack: data.stack || [],
                         demo_url: data.demo_url || '',
@@ -243,13 +277,23 @@ export default function AdminProjectEditor() {
         }
     }, [id, isEdit])
 
-    // Handle form field change
+    // Handle form field change (supports translatable vs plain fields)
     const handleChange = (field, value) => {
         setFormData((prev) => {
-            const updated = { ...prev, [field]: value }
+            const isTranslatable = ['title', 'summary', 'role', 'description'].includes(field)
+            let updatedFieldVal = value
 
-            // Auto slug from title
-            if (field === 'title' && !isSlugManuallyEdited) {
+            if (isTranslatable) {
+                updatedFieldVal = {
+                    ...prev[field],
+                    [editorLang]: value,
+                }
+            }
+
+            const updated = { ...prev, [field]: updatedFieldVal }
+
+            // Auto slug from title.id
+            if (field === 'title' && editorLang === 'id' && !isSlugManuallyEdited) {
                 updated.slug = slugify(value)
             }
 
@@ -257,7 +301,7 @@ export default function AdminProjectEditor() {
         })
         setIsDirty(true)
         setSaveStatus('unsaved')
-        setErrors((prev) => ({ ...prev, [field]: null }))
+        setErrors((prev) => ({ ...prev, [field]: null, [`${field}.${editorLang}`]: null }))
     }
 
     // Cover image upload
@@ -273,8 +317,13 @@ export default function AdminProjectEditor() {
             const res = await uploadAdminImage(file, (percent) => {
                 setCoverProgress(percent)
             })
-            handleChange('thumbnail_path', res.path)
-            setFormData((prev) => ({ ...prev, thumbnail_url: res.url }))
+            setFormData((prev) => ({
+                ...prev,
+                thumbnail_path: res.path,
+                thumbnail_url: res.url,
+            }))
+            setIsDirty(true)
+            setSaveStatus('unsaved')
         } catch (err) {
             setCoverError(err.message || 'Gagal mengunggah gambar sampul.')
         } finally {
@@ -297,34 +346,6 @@ export default function AdminProjectEditor() {
         handleChange(
             'stack',
             formData.stack.filter((_, i) => i !== index)
-        )
-    }
-
-    // Highlights Add / Move / Remove
-    const handleAddHighlight = () => {
-        handleChange('highlights', [...formData.highlights, ''])
-    }
-
-    const handleUpdateHighlight = (index, val) => {
-        const updated = [...formData.highlights]
-        updated[index] = val
-        handleChange('highlights', updated)
-    }
-
-    const handleMoveHighlight = (index, direction) => {
-        const updated = [...formData.highlights]
-        const targetIdx = index + direction
-        if (targetIdx < 0 || targetIdx >= updated.length) return
-        const temp = updated[index]
-        updated[index] = updated[targetIdx]
-        updated[targetIdx] = temp
-        handleChange('highlights', updated)
-    }
-
-    const handleRemoveHighlight = (index) => {
-        handleChange(
-            'highlights',
-            formData.highlights.filter((_, i) => i !== index)
         )
     }
 
@@ -423,7 +444,6 @@ export default function AdminProjectEditor() {
         const payload = {
             ...formData,
             status: targetStatus ?? formData.status,
-            // Filter out empty highlights
             highlights: formData.highlights.filter((h) => h.trim() !== ''),
         }
 
@@ -439,7 +459,6 @@ export default function AdminProjectEditor() {
                 setErrors(res.errors)
                 setSaveStatus('unsaved')
 
-                // Scroll to first error section
                 const firstErrorKey = Object.keys(res.errors)[0]
                 const errorElement = document.querySelector(`[data-field="${firstErrorKey}"]`)
                 if (errorElement) {
@@ -452,8 +471,14 @@ export default function AdminProjectEditor() {
             if (updatedProject && updatedProject.status) {
                 setFormData((prev) => ({
                     ...prev,
-                    ...updatedProject,
+                    title: normalizeTranslatable(updatedProject.title),
+                    summary: normalizeTranslatable(updatedProject.summary),
+                    role: normalizeTranslatable(updatedProject.role),
+                    description: normalizeTranslatable(updatedProject.description),
+                    slug: updatedProject.slug || prev.slug,
+                    category: updatedProject.category || prev.category,
                     year: updatedProject.year ? updatedProject.year.toString() : prev.year,
+                    status: updatedProject.status,
                 }))
             }
 
@@ -466,7 +491,6 @@ export default function AdminProjectEditor() {
 
             const createdId = res.id || res.data?.id
             if (!isEdit && createdId) {
-                // Replace URL to edit mode cleanly without page refresh
                 navigate(`/admin/proyek/${createdId}`, { replace: true })
             }
         } catch (err) {
@@ -512,6 +536,9 @@ export default function AdminProjectEditor() {
 
     const backQuery = location.search || ''
     const previewWidth = previewViewport === 'desktop' ? 1100 : 390
+    const currentTitleVal = formData.title[editorLang] || ''
+    const currentSummaryVal = formData.summary[editorLang] || ''
+    const currentRoleVal = formData.role[editorLang] || ''
 
     return (
         <div className="editor-shell">
@@ -548,6 +575,26 @@ export default function AdminProjectEditor() {
                 </div>
             </div>
 
+            {/* Language Switcher Tabs Bar */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: 'var(--surface)', padding: '6px 12px', borderRadius: 'var(--r-md)', border: '1px solid var(--border)' }}>
+                <button
+                    type="button"
+                    className={`btn ${editorLang === 'id' ? 'btn-primary' : 'btn-ghost'}`}
+                    onClick={() => setEditorLang('id')}
+                    style={{ fontSize: '13px', padding: '6px 14px' }}
+                >
+                    🇮🇩 Indonesia (Utama)
+                </button>
+                <button
+                    type="button"
+                    className={`btn ${editorLang === 'en' ? 'btn-primary' : 'btn-ghost'}`}
+                    onClick={() => setEditorLang('en')}
+                    style={{ fontSize: '13px', padding: '6px 14px' }}
+                >
+                    🇬🇧 English {formData.title.en ? '✓' : '(Belum diterjemahkan)'}
+                </button>
+            </div>
+
             {/* Main 2-Column Grid */}
             <div className="editor-grid">
                 {/* Left Column: Form Sections */}
@@ -556,26 +603,37 @@ export default function AdminProjectEditor() {
                     style={{ display: mobileTab === 'form' || window.innerWidth > 1100 ? 'flex' : 'none' }}
                 >
                     {/* Section 1: Informasi dasar (Judul, Kategori + Tahun) */}
-                    <div className={`editor-section ${errors.title ? 'has-error' : ''}`}>
+                    <div className={`editor-section ${errors.title || errors['title.id'] ? 'has-error' : ''}`}>
                         <div className="editor-section-head">
-                            <h2 className="editor-section-title">Informasi dasar</h2>
+                            <h2 className="editor-section-title">Informasi dasar ({editorLang.toUpperCase()})</h2>
                             <span className="editor-section-badge">Tampil di: Kartu · Modal · Halaman</span>
                         </div>
 
                         <div className="form-group" data-field="title">
-                            <label htmlFor="input-title">Judul proyek *</label>
+                            <label htmlFor="input-title">
+                                Judul proyek ({editorLang === 'id' ? 'Indonesia *' : 'English'})
+                            </label>
                             <input
                                 id="input-title"
                                 type="text"
-                                className={`form-input ${errors.title ? 'is-invalid' : ''}`}
-                                value={formData.title}
+                                className={`form-input ${(errors.title || errors[`title.${editorLang}`]) ? 'is-invalid' : ''}`}
+                                value={currentTitleVal}
                                 onChange={(e) => handleChange('title', e.target.value)}
-                                placeholder="mis. Module Sales Forces"
+                                placeholder={editorLang === 'id' ? 'mis. Module Sales Forces' : 'e.g. Sales Forces Module'}
                             />
-                            <p className="form-hint" style={{ marginTop: '6px', fontSize: '12px' }}>
-                                Alamat: /proyek/{formData.slug || slugify(formData.title) || 'eduvision-deteksi-buah'}
-                            </p>
-                            {errors.title && <p className="form-error">{errors.title[0]}</p>}
+                            {editorLang === 'en' && !currentTitleVal && (
+                                <p className="form-hint warning" style={{ marginTop: '4px' }}>
+                                    ⚠️ Belum diterjemahkan ke Bahasa Inggris. Pengunjung EN akan melihat versi Indonesia sebagai fallback.
+                                </p>
+                            )}
+                            {editorLang === 'id' && (
+                                <p className="form-hint" style={{ marginTop: '6px', fontSize: '12px' }}>
+                                    Alamat: /proyek/{formData.slug || slugify(formData.title.id) || 'proyek-baru'}
+                                </p>
+                            )}
+                            {(errors.title || errors[`title.${editorLang}`]) && (
+                                <p className="form-error">{errors.title?.[0] || errors[`title.${editorLang}`]?.[0]}</p>
+                            )}
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -611,31 +669,33 @@ export default function AdminProjectEditor() {
                     {/* Section 2: Ringkasan */}
                     <div className={`editor-section ${errors.summary ? 'has-error' : ''}`} data-field="summary">
                         <div className="editor-section-head">
-                            <h2 className="editor-section-title">Ringkasan</h2>
+                            <h2 className="editor-section-title">Ringkasan ({editorLang.toUpperCase()})</h2>
                             <span className="editor-section-badge">Tampil di: Kartu · Modal · Halaman</span>
                         </div>
                         <div className="form-group">
                             <textarea
-                                className={`form-textarea ${errors.summary ? 'is-invalid' : ''}`}
-                                maxLength={300}
-                                value={formData.summary}
+                                className={`form-textarea ${(errors.summary || errors[`summary.${editorLang}`]) ? 'is-invalid' : ''}`}
+                                maxLength={500}
+                                value={currentSummaryVal}
                                 onChange={(e) => handleChange('summary', e.target.value)}
-                                placeholder="Ringkasan singkat 1-2 kalimat..."
+                                placeholder={editorLang === 'id' ? 'Ringkasan singkat 1-2 kalimat...' : 'Short 1-2 sentence summary...'}
                             />
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-                                <span className={`form-hint ${formData.summary.length > 160 ? 'warning' : ''}`}>
-                                    {formData.summary.length > 160 && 'Di kartu, ringkasan dipotong 3 baris.'}
+                                <span className={`form-hint ${currentSummaryVal.length > 160 ? 'warning' : ''}`}>
+                                    {currentSummaryVal.length > 160 && 'Di kartu, ringkasan dipotong 3 baris.'}
                                 </span>
-                                <span className="form-hint">{formData.summary.length}/300</span>
+                                <span className="form-hint">{currentSummaryVal.length}/500</span>
                             </div>
-                            {errors.summary && <p className="form-error">{errors.summary[0]}</p>}
+                            {(errors.summary || errors[`summary.${editorLang}`]) && (
+                                <p className="form-error">{errors.summary?.[0] || errors[`summary.${editorLang}`]?.[0]}</p>
+                            )}
                         </div>
                     </div>
 
                     {/* Section 3: Sampul */}
                     <div className="editor-section" data-field="thumbnail_path">
                         <div className="editor-section-head">
-                            <h2 className="editor-section-title">Sampul</h2>
+                            <h2 className="editor-section-title">Sampul Proyek</h2>
                             <span className="editor-section-badge">Tampil di: Kartu · Modal · Halaman</span>
                         </div>
 
@@ -659,8 +719,8 @@ export default function AdminProjectEditor() {
                                             className="btn btn-ghost"
                                             style={{ background: 'var(--surface)', color: '#ef4444' }}
                                             onClick={() => {
-                                                handleChange('thumbnail_path', '')
-                                                setFormData((prev) => ({ ...prev, thumbnail_url: '' }))
+                                                setFormData((prev) => ({ ...prev, thumbnail_path: '', thumbnail_url: '' }))
+                                                setIsDirty(true)
                                             }}
                                         >
                                             Hapus
@@ -673,7 +733,7 @@ export default function AdminProjectEditor() {
                                 <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleCoverUpload} hidden />
                                 <div className="upload-dropzone-inner">
                                     <div className="upload-thumbnail-box" style={{ overflow: 'hidden' }}>
-                                        <ProjectCover project={{ category: formData.category, title: formData.title || 'Wireframe' }} />
+                                        <ProjectCover project={{ category: formData.category, title: previewData.title }} />
                                     </div>
                                     <div>
                                         <p style={{ margin: '0 0 2px', fontWeight: 600, fontSize: '14px' }}>Klik atau geser gambar ke sini untuk mengunggah</p>
@@ -695,7 +755,7 @@ export default function AdminProjectEditor() {
                     {/* Section 4: Konten */}
                     <div className={`editor-section ${errors.description ? 'has-error' : ''}`} data-field="description">
                         <div className="editor-section-head">
-                            <h2 className="editor-section-title">Konten</h2>
+                            <h2 className="editor-section-title">Konten ({editorLang.toUpperCase()})</h2>
                             <span className="editor-section-badge">Tampil di: Modal · Halaman</span>
                         </div>
 
@@ -869,14 +929,14 @@ export default function AdminProjectEditor() {
                             <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                 {/* Peran */}
                                 <div className="form-group" data-field="role">
-                                    <label htmlFor="input-role">Peran</label>
+                                    <label htmlFor="input-role">Peran ({editorLang.toUpperCase()})</label>
                                     <input
                                         id="input-role"
                                         type="text"
                                         className="form-input"
-                                        value={formData.role}
+                                        value={currentRoleVal}
                                         onChange={(e) => handleChange('role', e.target.value)}
-                                        placeholder="mis. Fullstack Developer"
+                                        placeholder={editorLang === 'id' ? 'mis. Fullstack Developer' : 'e.g. Fullstack Developer'}
                                     />
                                 </div>
 
@@ -1132,12 +1192,12 @@ export default function AdminProjectEditor() {
                         )}
                     </PreviewFrame>
 
-                    <p className="preview-note">Preview memakai komponen yang sama dengan situs.</p>
+                    <p className="preview-note">Preview ({editorLang.toUpperCase()}) memakai komponen yang sama dengan situs.</p>
                 </div>
-            </div >
+            </div>
 
             {/* Sticky Bottom Action Bar */}
-            < div className="editor-bottom-bar" >
+            <div className="editor-bottom-bar">
                 <div className="editor-save-status">
                     {saveStatus === 'saving' && <span>Menyimpan…</span>}
                     {saveStatus === 'unsaved' && <span>Belum disimpan</span>}
@@ -1191,73 +1251,69 @@ export default function AdminProjectEditor() {
                         </>
                     )}
                 </div>
-            </div >
+            </div>
 
             {/* Inline Dialog: TipTap Link URL */}
-            {
-                linkDialogOpen && (
-                    <div className="editor-dialog-overlay">
-                        <div className="editor-dialog">
-                            <h3 className="editor-dialog-title">Masukkan Tautan (URL)</h3>
-                            <input
-                                type="url"
-                                className="form-input"
-                                value={linkUrlInput}
-                                onChange={(e) => setLinkUrlInput(e.target.value)}
-                                placeholder="https://..."
-                                autoFocus
-                            />
-                            <div className="editor-dialog-actions">
-                                <button type="button" className="btn btn-ghost" onClick={() => setLinkDialogOpen(false)}>
-                                    Batal
-                                </button>
-                                <button type="button" className="btn btn-primary" onClick={saveLink}>
-                                    Simpan Tautan
-                                </button>
-                            </div>
+            {linkDialogOpen && (
+                <div className="editor-dialog-overlay">
+                    <div className="editor-dialog">
+                        <h3 className="editor-dialog-title">Masukkan Tautan (URL)</h3>
+                        <input
+                            type="url"
+                            className="form-input"
+                            value={linkUrlInput}
+                            onChange={(e) => setLinkUrlInput(e.target.value)}
+                            placeholder="https://..."
+                            autoFocus
+                        />
+                        <div className="editor-dialog-actions">
+                            <button type="button" className="btn btn-ghost" onClick={() => setLinkDialogOpen(false)}>
+                                Batal
+                            </button>
+                            <button type="button" className="btn btn-primary" onClick={saveLink}>
+                                Simpan Tautan
+                            </button>
                         </div>
                     </div>
-                )
-            }
+                </div>
+            )}
 
             {/* Inline Dialog: TipTap Image Alt Text */}
-            {
-                imageDialogOpen && (
-                    <div className="editor-dialog-overlay">
-                        <div className="editor-dialog">
-                            <h3 className="editor-dialog-title">Keterangan Gambar (Alt Text)</h3>
-                            <input
-                                type="text"
-                                className="form-input"
-                                value={imageAltInput}
-                                onChange={(e) => setImageAltInput(e.target.value)}
-                                placeholder="Deskripsi singkat gambar..."
-                                autoFocus
-                            />
-                            <div className="editor-dialog-actions">
-                                <button
-                                    type="button"
-                                    className="btn btn-ghost"
-                                    onClick={() => {
-                                        setImageDialogOpen(false)
-                                        setPendingImageFile(null)
-                                    }}
-                                >
-                                    Batal
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    disabled={imageUploading}
-                                    onClick={saveEditorImage}
-                                >
-                                    {imageUploading ? 'Mengunggah…' : 'Sisipkan Gambar'}
-                                </button>
-                            </div>
+            {imageDialogOpen && (
+                <div className="editor-dialog-overlay">
+                    <div className="editor-dialog">
+                        <h3 className="editor-dialog-title">Keterangan Gambar (Alt Text)</h3>
+                        <input
+                            type="text"
+                            className="form-input"
+                            value={imageAltInput}
+                            onChange={(e) => setImageAltInput(e.target.value)}
+                            placeholder="Deskripsi singkat gambar..."
+                            autoFocus
+                        />
+                        <div className="editor-dialog-actions">
+                            <button
+                                type="button"
+                                className="btn btn-ghost"
+                                onClick={() => {
+                                    setImageDialogOpen(false)
+                                    setPendingImageFile(null)
+                                }}
+                            >
+                                Batal
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-primary"
+                                disabled={imageUploading}
+                                onClick={saveEditorImage}
+                            >
+                                {imageUploading ? 'Mengunggah…' : 'Sisipkan Gambar'}
+                            </button>
                         </div>
                     </div>
-                )
-            }
-        </div >
+                </div>
+            )}
+        </div>
     )
 }

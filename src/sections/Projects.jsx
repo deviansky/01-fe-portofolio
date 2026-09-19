@@ -2,8 +2,10 @@ import { useCallback, useMemo, useState } from 'react'
 import { PROJECT_CATEGORIES } from '../lib/format'
 import ProjectCard from '../components/project/ProjectCard'
 import ProjectModal from '../components/ProjectModal'
+import { useI18n } from '../i18n/I18nProvider'
 
 export default function Projects({ projects }) {
+  const { t, lang } = useI18n()
   const [filter, setFilter] = useState('all')
   const [selected, setSelected] = useState(null)
   const [expanded, setExpanded] = useState(false)
@@ -26,7 +28,7 @@ export default function Projects({ projects }) {
   return (
     <section className="section container" id="proyek">
       <div className="section-head">
-        <h2 className="section-title">Proyek</h2>
+        <h2 className="section-title">{t('projects.title')}</h2>
         <div className="filters-wrapper">
           <div className="filters" role="group" aria-label="Saring proyek">
             {available.map((c) => (
@@ -37,7 +39,7 @@ export default function Projects({ projects }) {
                 aria-pressed={filter === c.key}
                 onClick={() => handleFilterChange(c.key)}
               >
-                {c.label}
+                {lang === 'en' ? (c.labelEn || c.label) : c.label}
               </button>
             ))}
           </div>
@@ -45,7 +47,7 @@ export default function Projects({ projects }) {
       </div>
 
       {visible.length === 0 ? (
-        <p className="empty">Belum ada proyek di kategori ini.</p>
+        <p className="empty">{lang === 'en' ? 'No projects in this category.' : 'Belum ada proyek di kategori ini.'}</p>
       ) : (
         <>
           <ul className={`pj-grid ${expanded ? 'is-expanded' : ''}`}>
@@ -61,7 +63,7 @@ export default function Projects({ projects }) {
               className="pj-more-btn"
               onClick={() => setExpanded((prev) => !prev)}
             >
-              {expanded ? 'Tampilkan lebih sedikit' : `Tampilkan semua proyek (${visible.length})`}
+              {expanded ? t('projects.showLess') : `${t('projects.showAll')} (${visible.length})`}
             </button>
           )}
         </>

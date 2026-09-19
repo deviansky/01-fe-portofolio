@@ -1,11 +1,8 @@
 import defaultPhoto from '../assets/david.webp'
+import { useI18n } from '../i18n/I18nProvider'
 
-/**
- * Hero: nama besar di kiri, foto hitam-putih di kanan.
- * Foto dibuat hitam-putih lewat CSS. Foto bawaan: src/assets/david.webp.
- * Kalau profile.avatar_url diisi dari API, foto itu yang dipakai.
- */
 export default function Hero({ profile }) {
+  const { t } = useI18n()
   const photo = profile.avatar_url || defaultPhoto
   const firstName = profile.name.split(' ')[0]
 
@@ -16,11 +13,11 @@ export default function Hero({ profile }) {
         <h1 className="hp-name">{profile.name}</h1>
         <p className="hp-tagline">{profile.tagline}</p>
         <div className="hp-actions">
-          <a className="btn btn-primary" href="#proyek">Lihat proyek</a>
+          <a className="btn btn-primary" href="#proyek">{t('hero.seeProjects')}</a>
           {profile.cv_url ? (
             <a className="btn btn-ghost" href={profile.cv_url} target="_blank" rel="noreferrer">Unduh CV</a>
           ) : (
-            <a className="btn btn-ghost" href="#kontak">Hubungi saya</a>
+            <a className="btn btn-ghost" href="#kontak">{t('hero.contactMe')}</a>
           )}
         </div>
       </div>
