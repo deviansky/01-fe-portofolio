@@ -27,6 +27,9 @@ async function request(path, { method = 'GET', body, signal } = {}) {
 
   const json = await res.json().catch(() => ({}))
   if (!res.ok) {
+    if (res.status === 419) {
+      throw new ApiError('Sesi kedaluwarsa. Muat ulang halaman lalu coba lagi.', 419, json.errors)
+    }
     throw new ApiError(json.message ?? `Request gagal (${res.status}).`, res.status, json.errors)
   }
   return json.data ?? json

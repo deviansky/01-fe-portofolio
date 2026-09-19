@@ -1,0 +1,139 @@
+/* Admin Shell Layout Styles */
+.admin-shell {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+}
+
+/* Sidebar */
+.admin-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    background-color: var(--surface);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    padding: var(--s-6) var(--s-4);
+    box-sizing: border-box;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.admin-sidebar-header {
+    margin-bottom: var(--s-8);
+}
+
+.admin-sidebar-brand {
+    font-size: var(--fs-md);
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+}
+
+.admin-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    flex: 1;
+}
+
+.admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    padding: var(--s-3) var(--s-4);
+    border-radius: var(--r-md);
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-nav-item:hover {
+    background-color: var(--bg);
+    color: var(--ink);
+}
+
+.admin-nav-item.active {
+    background-color: var(--bg);
+    color: var(--route);
+    font-weight: 600;
+}
+
+/* Content Area */
+.admin-main {
+    min-width: 0;
+    padding: var(--s-8);
+    max-width: 1200px;
+    box-sizing: border-box;
+}
+
+.admin-mobile-header {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--s-3) var(--s-4);
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--line);
+}
+
+.admin-mobile-toggle {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: var(--s-2) var(--s-4);
+    color: var(--ink);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+/* Mobile responsive drawer */
+@media (max-width: 760px) {
+    .admin-shell {
+        display: block;
+    }
+
+    .admin-mobile-header {
+        display: flex;
+    }
+
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        height: 100vh;
+        z-index: 1000;
+        box-shadow: 4px 0 16px rgba(0, 0, 0, 0.1);
+        transform: translateX(-100%);
+        transition: transform 0.2s var(--ease);
+    }
+
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .admin-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 999;
+    }
+
+    .admin-main {
+        padding: var(--s-4);
+    }
+}

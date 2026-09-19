@@ -1,0 +1,104 @@
+/* RichContent Typography Styles */
+.rich-content {
+    color: var(--ink);
+    font-family: var(--font);
+    line-height: var(--lh-body);
+}
+
+.rich-content p {
+    margin: 0 0 var(--s-4);
+}
+
+.rich-content p:last-child {
+    margin-bottom: 0;
+}
+
+.rich-content h2 {
+    font-size: var(--fs-md);
+    font-weight: 700;
+    margin: var(--s-6) 0 var(--s-3);
+    line-height: var(--lh-tight);
+}
+
+.rich-content h2:first-child {
+    margin-top: 0;
+}
+
+.rich-content h3 {
+    font-size: var(--fs-base);
+    font-weight: 700;
+    margin: var(--s-5) 0 var(--s-2);
+    line-height: var(--lh-tight);
+}
+
+.rich-content a {
+    color: var(--route);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.rich-content a:hover {
+    text-decoration-thickness: 2px;
+}
+
+.rich-content ul,
+.rich-content ol {
+    margin: 0 0 var(--s-4);
+    padding-left: var(--s-6);
+}
+
+.rich-content li {
+    margin-bottom: var(--s-1);
+}
+
+.rich-content blockquote {
+    margin: 0 0 var(--s-4);
+    padding: var(--s-3) var(--s-4);
+    border-left: 3px solid var(--route);
+    background-color: var(--bg);
+    font-style: italic;
+    color: var(--ink-soft);
+}
+
+.rich-content pre {
+    margin: 0 0 var(--s-4);
+    padding: var(--s-4);
+    background-color: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    overflow-x: auto;
+    font-family: monospace;
+    font-size: var(--fs-sm);
+}
+
+.rich-content code {
+    font-family: monospace;
+    background-color: var(--bg);
+    padding: 2px 4px;
+    border-radius: var(--r-sm);
+    font-size: var(--fs-sm);
+}
+
+.rich-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--r-md);
+    margin: var(--s-4) 0;
+}
+
+.rich-content figure {
+    margin: 0 0 var(--s-4);
+}
+
+.rich-content figcaption {
+    font-size: var(--fs-sm);
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: var(--s-2);
+}
+
+.rich-content hr {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: var(--s-6) 0;
+}
