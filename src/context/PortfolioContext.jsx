@@ -19,7 +19,8 @@ export function PortfolioProvider({ children }) {
       })
       .catch((err) => {
         if (err.name === 'AbortError') return
-        console.warn('[portofolio] API tidak tersedia, pakai data cadangan:', err.message)
+        const apiUrl = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '') + '/portfolio'
+        console.error('[portofolio] Gagal mengambil data dari API URL:', apiUrl, 'Alasan:', err.message)
         setState({ data: fallbackPortfolio, loading: false, source: 'fallback' })
       })
     return () => controller.abort()

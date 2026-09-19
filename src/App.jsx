@@ -37,8 +37,8 @@ function PublicLayout() {
         <Outlet />
       </main>
       <Footer name={profile.name ?? 'Portofolio'} />
-      {import.meta.env.DEV && source === 'fallback' && (
-        <p className="dev-banner">Mode data cadangan: API be-portofolio belum tersambung.</p>
+      {source === 'fallback' && (
+        <p className="dev-banner">Data sedang tidak bisa dimuat, menampilkan versi tersimpan.</p>
       )}
     </>
   )
