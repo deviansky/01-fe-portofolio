@@ -20,7 +20,8 @@ export default function Navbar({ name }) {
     <header className="nav">
       <div className="nav-inner container">
         <Link to="/" className="nav-brand" onClick={() => setOpen(false)}>
-          {name}
+          {/* <img src="/favicon.svg" alt="Logo" className="nav-brand-logo" width="24" height="24" style={{ borderRadius: '6px', marginRight: '8px', verticalAlign: 'middle', display: 'inline-block' }} /> */}
+          <span>{name}</span>
         </Link>
 
         <button

@@ -1,8 +1,26 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { categoryLabel } from '../../lib/format'
+import ProjectCover from '../ProjectCover'
 import Stack from '../Stack'
 import RichContent from '../RichContent'
+
+function GalleryItem({ img, projectTitle }) {
+    const [failed, setFailed] = useState(false)
+    if (failed) return null
+
+    return (
+        <figure>
+            <img
+                src={img.url}
+                alt={img.caption || projectTitle}
+                loading="lazy"
+                onError={() => setFailed(true)}
+            />
+            {img.caption && <figcaption>{img.caption}</figcaption>}
+        </figure>
+    )
+}
 
 /**
  * Komponen tampilan murni untuk Halaman Detail Proyek.
@@ -30,9 +48,7 @@ export default function ProjectDetailContent({ project, backLink, renderLink }) 
                 <Stack items={project.stack} />
             </header>
 
-            {project.thumbnail_url && (
-                <img className="detail-cover" src={project.thumbnail_url} alt={`Tampilan ${project.title}`} />
-            )}
+            <ProjectCover project={project} className="detail-cover" />
 
             <div className="prose detail-body">
                 <RichContent html={project.description} />
@@ -47,10 +63,7 @@ export default function ProjectDetailContent({ project, backLink, renderLink }) 
             {project.images?.length > 0 && (
                 <div className="gallery">
                     {project.images.map((img) => (
-                        <figure key={img.url}>
-                            <img src={img.url} alt={img.caption || project.title} loading="lazy" />
-                            {img.caption && <figcaption>{img.caption}</figcaption>}
-                        </figure>
+                        <GalleryItem key={img.url} img={img} projectTitle={project.title} />
                     ))}
                 </div>
             )}
