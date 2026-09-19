@@ -1,5 +1,29 @@
-const rawBase = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-const SERVER_BASE_URL = rawBase.replace(/\/api\/?$/, '').replace(/\/$/, '')
+const rawApiUrl = (import.meta.env.VITE_API_URL ?? '/api').trim()
+
+function getBaseAndCsrf() {
+    if (rawApiUrl.startsWith('/')) {
+        return {
+            apiPrefix: rawApiUrl.replace(/\/$/, ''),
+            csrfUrl: '/sanctum/csrf-cookie',
+            serverBase: '',
+        }
+    }
+    try {
+        const urlObj = new URL(rawApiUrl)
+        const origin = urlObj.origin
+        return {
+            apiPrefix: rawApiUrl.replace(/\/$/, ''),
+            csrfUrl: `${origin}/sanctum/csrf-cookie`,
+            serverBase: origin,
+        }
+    } catch {
+        return {
+            apiPrefix: rawApiUrl.replace(/\/$/, ''),
+            csrfUrl: '/sanctum/csrf-cookie',
+            serverBase: '',
+        }
+    }
+}
 
 function getXsrfToken() {
     const match = document.cookie.match(new RegExp('(^|; )XSRF-TOKEN=([^;]+)'))
@@ -7,7 +31,8 @@ function getXsrfToken() {
 }
 
 export async function getCsrfCookie() {
-    return fetch(`${SERVER_BASE_URL}/sanctum/csrf-cookie`, {
+    const { csrfUrl } = getBaseAndCsrf()
+    return fetch(csrfUrl, {
         credentials: 'include',
         headers: {
             'Accept': 'application/json',
@@ -17,7 +42,13 @@ export async function getCsrfCookie() {
 
 export async function adminFetch(endpoint, options = {}) {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
-    const url = endpoint.startsWith('http') ? endpoint : `${SERVER_BASE_URL}${cleanEndpoint}`
+    let url = cleanEndpoint
+
+    if (!endpoint.startsWith('http')) {
+        const { serverBase } = getBaseAndCsrf()
+        url = serverBase ? `${serverBase}${cleanEndpoint}` : cleanEndpoint
+    }
+
     const method = (options.method || 'GET').toUpperCase()
 
     const headers = {
@@ -39,6 +70,11 @@ export async function adminFetch(endpoint, options = {}) {
         headers,
         credentials: 'include',
     })
+
+    const contentType = response.headers.get('content-type') || ''
+    if (!contentType.includes('application/json') && response.status !== 204) {
+        throw new Error('Server tidak mengembalikan JSON')
+    }
 
     if (response.status === 401 && !endpoint.includes('/api/login') && !endpoint.includes('/sanctum/csrf-cookie')) {
         if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/admin/login')) {
@@ -96,7 +132,9 @@ export async function deleteAdminProject(id) {
 export function uploadAdminImage(file, onProgress) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest()
-        const url = `${SERVER_BASE_URL}/api/admin/uploads`
+        const { serverBase } = getBaseAndCsrf()
+        const uploadEndpoint = '/api/admin/uploads'
+        const url = serverBase ? `${serverBase}${uploadEndpoint}` : uploadEndpoint
 
         xhr.open('POST', url)
         xhr.withCredentials = true
@@ -181,4 +219,3 @@ export async function deleteAdminMessage(id) {
     })
     return res.json()
 }
-

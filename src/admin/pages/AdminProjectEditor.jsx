@@ -8,6 +8,7 @@ import Placeholder from '@tiptap/extension-placeholder'
 import DOMPurify from 'dompurify'
 
 import { PROJECT_CATEGORIES } from '../../lib/format'
+import { api } from '../../lib/api'
 import { getAdminProject, createAdminProject, updateAdminProject, uploadAdminImage, getAdminProjects } from '../lib/adminApi'
 import PreviewFrame from '../components/PreviewFrame'
 import ProjectCard from '../../components/project/ProjectCard'
@@ -177,8 +178,7 @@ export default function AdminProjectEditor() {
         let isSubscribed = true
 
         // Fetch skills from public portfolio API
-        fetch('http://localhost:8000/api/portfolio')
-            .then((res) => res.json())
+        api.getPortfolio()
             .then((data) => {
                 if (!isSubscribed) return
                 const skillNames = (data.profile?.skills || []).map((s) => s.name)

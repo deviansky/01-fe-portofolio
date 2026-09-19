@@ -10,6 +10,8 @@ import NotFound from './pages/NotFound'
 import { AuthProvider } from './admin/context/AuthContext'
 import RequireAuth from './admin/components/RequireAuth'
 
+import ErrorPage from './components/ErrorPage'
+
 const AdminLogin = lazy(() => import('./admin/pages/AdminLogin'))
 const AdminLayout = lazy(() => import('./admin/components/AdminLayout'))
 const AdminProjects = lazy(() => import('./admin/pages/AdminProjects'))
@@ -23,15 +25,18 @@ function PublicLayout() {
     return <div className="loading" role="status">Memuat portofolio…</div>
   }
 
+  const profile = data?.profile || {}
+  const name = profile.short_name ?? profile.name ?? 'Portofolio'
+
   return (
     <>
       <a href="#main" className="skip-link">Lewati ke konten</a>
       <ScrollToHash ready={!loading} />
-      <Navbar name={data.profile.short_name ?? data.profile.name} />
+      <Navbar name={name} />
       <main id="main">
         <Outlet />
       </main>
-      <Footer name={data.profile.name} />
+      <Footer name={profile.name ?? 'Portofolio'} />
       {import.meta.env.DEV && source === 'fallback' && (
         <p className="dev-banner">Mode data cadangan: API be-portofolio belum tersambung.</p>
       )}
@@ -71,6 +76,7 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: <AdminRoot />,
+    errorElement: <ErrorPage />,
     children: [
       { path: 'login', element: <AdminLogin /> },
       {
@@ -96,6 +102,7 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: <PublicLayout />,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, element: <PublicHome /> },
       { path: 'proyek/:slug', element: <PublicProjectDetail /> },

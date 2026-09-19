@@ -1,4 +1,5 @@
-const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api').replace(/\/$/, '')
+const rawApiUrl = (import.meta.env.VITE_API_URL ?? '/api').trim()
+const BASE_URL = rawApiUrl.replace(/\/$/, '')
 
 export class ApiError extends Error {
   constructor(message, status, errors = {}) {
@@ -23,6 +24,11 @@ async function request(path, { method = 'GET', body, signal } = {}) {
   } catch (err) {
     if (err.name === 'AbortError') throw err
     throw new ApiError('Server tidak bisa dihubungi.', 0)
+  }
+
+  const contentType = res.headers.get('content-type') || ''
+  if (!contentType.includes('application/json')) {
+    throw new ApiError('Server tidak mengembalikan JSON.', res.status)
   }
 
   const json = await res.json().catch(() => ({}))
@@ -65,6 +71,11 @@ export const api = {
       throw new ApiError('Server tidak bisa dihubungi.', 0)
     }
 
+    const contentType = res.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) {
+      throw new ApiError('Server tidak mengembalikan JSON.', res.status)
+    }
+
     const json = await res.json().catch(() => ({}))
     if (!res.ok) {
       throw new ApiError(json.message ?? `Upload gagal (${res.status}).`, res.status, json.errors)
@@ -72,4 +83,3 @@ export const api = {
     return json
   },
 }
-

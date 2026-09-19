@@ -11,7 +11,12 @@ export function PortfolioProvider({ children }) {
     const controller = new AbortController()
     api
       .getPortfolio(controller.signal)
-      .then((data) => setState({ data, loading: false, source: 'api' }))
+      .then((data) => {
+        if (!data || !data.profile) {
+          throw new Error('API response tidak memiliki data profile')
+        }
+        setState({ data, loading: false, source: 'api' })
+      })
       .catch((err) => {
         if (err.name === 'AbortError') return
         console.warn('[portofolio] API tidak tersedia, pakai data cadangan:', err.message)
