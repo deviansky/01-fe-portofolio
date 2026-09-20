@@ -203,7 +203,7 @@ export const fallbackPortfolio = {
       id: 1,
       company: 'Univerz Teknologi Utama',
       position: 'Full Stack Developer',
-      employment_type: 'Purnawaktu',
+      employment_type: 'Full-time',
       location: 'Jakarta Raya, Indonesia',
       work_mode: 'Di lokasi',
       logo_url: null,

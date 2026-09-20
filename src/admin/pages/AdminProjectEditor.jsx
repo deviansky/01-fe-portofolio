@@ -56,6 +56,7 @@ export default function AdminProjectEditor() {
     const [lastSavedTime, setLastSavedTime] = useState('')
     const [errors, setErrors] = useState({})
     const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false)
+    const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', items: [] })
 
     // Active Language Tab for Editor: 'id' | 'en'
     const [editorLang, setEditorLang] = useState('id')
@@ -72,7 +73,7 @@ export default function AdminProjectEditor() {
     const [formData, setFormData] = useState({
         title: { id: '', en: '' },
         slug: '',
-        category: 'ERP & sistem internal',
+        category: 'erp',
         year: new Date().getFullYear().toString(),
         role: { id: '', en: '' },
         is_featured: false,
@@ -111,7 +112,7 @@ export default function AdminProjectEditor() {
         return {
             ...debouncedData,
             title: getVal('title').trim() || (editorLang === 'en' ? 'Project Title' : 'Judul proyek'),
-            category: debouncedData.category || 'ERP & sistem internal',
+            category: debouncedData.category || 'erp',
             summary: getVal('summary').trim() || (editorLang === 'en' ? 'Short project summary will appear here.' : 'Ringkasan singkat proyek akan muncul di sini.'),
             role: getVal('role'),
             description: getVal('description'),
@@ -441,6 +442,31 @@ export default function AdminProjectEditor() {
         setSaveStatus('saving')
         setErrors({})
 
+        // Client-side validation check
+        const clientErrors = []
+        if (!formData.title?.id?.trim()) {
+            clientErrors.push('Judul proyek (Bahasa Indonesia) wajib diisi.')
+        }
+        if (!formData.summary?.id?.trim()) {
+            clientErrors.push('Ringkasan proyek (Bahasa Indonesia) wajib diisi.')
+        }
+        if (!formData.category) {
+            clientErrors.push('Kategori proyek wajib dipilih.')
+        }
+        if (!formData.year || isNaN(formData.year)) {
+            clientErrors.push('Tahun proyek wajib berupa 4 angka (mis. 2026).')
+        }
+
+        if (clientErrors.length > 0) {
+            setSaveStatus('unsaved')
+            setAlertModal({
+                isOpen: true,
+                title: '⚠️ Form Belum Lengkap',
+                items: clientErrors,
+            })
+            return
+        }
+
         const payload = {
             ...formData,
             status: targetStatus ?? formData.status,
@@ -455,14 +481,37 @@ export default function AdminProjectEditor() {
                 res = await createAdminProject(payload)
             }
 
-            if (res.errors) {
-                setErrors(res.errors)
+            if (!res || res.errors || res.message === 'Server Error') {
+                setErrors(res?.errors || {})
                 setSaveStatus('unsaved')
 
-                const firstErrorKey = Object.keys(res.errors)[0]
-                const errorElement = document.querySelector(`[data-field="${firstErrorKey}"]`)
-                if (errorElement) {
-                    errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                const errorItems = []
+                if (res?.errors) {
+                    Object.entries(res.errors).forEach(([field, msgs]) => {
+                        const fieldName = field.toUpperCase()
+                        const detail = Array.isArray(msgs) ? msgs.join(', ') : msgs
+                        errorItems.push(`${fieldName}: ${detail}`)
+                    })
+                } else if (res?.message) {
+                    errorItems.push(
+                        res.message === 'Server Error'
+                            ? 'Server Error (500): Terjadi kesalahan pada server backend. Silakan pastikan server backend di-pull (git pull) dan jalankan `php artisan config:clear`.'
+                            : res.message
+                    )
+                }
+
+                setAlertModal({
+                    isOpen: true,
+                    title: '❌ Gagal Menyimpan Proyek',
+                    items: errorItems.length > 0 ? errorItems : ['Terjadi kesalahan saat menyimpan data ke server.'],
+                })
+
+                const firstErrorKey = res?.errors ? Object.keys(res.errors)[0] : null
+                if (firstErrorKey) {
+                    const errorElement = document.querySelector(`[data-field="${firstErrorKey}"]`)
+                    if (errorElement) {
+                        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    }
                 }
                 return
             }
@@ -495,7 +544,11 @@ export default function AdminProjectEditor() {
             }
         } catch (err) {
             setSaveStatus('unsaved')
-            alert(err.message || 'Gagal menyimpan proyek.')
+            setAlertModal({
+                isOpen: true,
+                title: '❌ Gagal Menyimpan Proyek',
+                items: [err.message || 'Terjadi kesalahan koneksi atau server.'],
+            })
         }
     }
 
@@ -1309,6 +1362,35 @@ export default function AdminProjectEditor() {
                                 onClick={saveEditorImage}
                             >
                                 {imageUploading ? 'Mengunggah…' : 'Sisipkan Gambar'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Alert Validasi / Error Form Proyek */}
+            {alertModal.isOpen && (
+                <div className="editor-dialog-overlay" style={{ zIndex: 9999 }}>
+                    <div className="editor-dialog" style={{ maxWidth: '480px', borderRadius: '16px', padding: '24px' }}>
+                        <h3 className="editor-dialog-title" style={{ color: alertModal.title.includes('❌') ? '#ef4444' : '#f59e0b', fontSize: '18px', margin: '0 0 10px' }}>
+                            {alertModal.title}
+                        </h3>
+                        <p style={{ margin: '0 0 12px', color: 'var(--text-secondary, #64748b)', fontSize: '14px' }}>
+                            {alertModal.title.includes('⚠️') ? 'Beberapa informasi wajib belum diisi atau tidak sesuai:' : 'Detail respons dari server:'}
+                        </p>
+                        <ul style={{ margin: '0 0 20px', paddingLeft: '20px', color: 'var(--text, #1e293b)', fontSize: '14px', lineHeight: '1.6' }}>
+                            {alertModal.items.map((item, idx) => (
+                                <li key={idx} style={{ marginBottom: '6px' }}>{item}</li>
+                            ))}
+                        </ul>
+                        <div className="editor-dialog-actions" style={{ justifyContent: 'flex-end', marginTop: '16px' }}>
+                            <button
+                                type="button"
+                                className="btn btn-primary"
+                                onClick={() => setAlertModal({ isOpen: false, title: '', items: [] })}
+                                style={{ padding: '8px 20px', borderRadius: '8px' }}
+                            >
+                                Saya mengerti
                             </button>
                         </div>
                     </div>

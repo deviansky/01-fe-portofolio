@@ -85,10 +85,34 @@ export function I18nProvider({ children }) {
   )
 }
 
+const defaultFallbackT = (key, vars = {}) => {
+  const dict = DICTIONARIES.id
+  const keys = key.split('.')
+  let current = dict
+
+  for (const k of keys) {
+    if (current && typeof current === 'object' && k in current) {
+      current = current[k]
+    } else {
+      return key
+    }
+  }
+
+  if (typeof current !== 'string') return key
+
+  return Object.entries(vars).reduce(
+    (str, [vKey, vVal]) => str.replace(new RegExp(`\\{${vKey}\\}`, 'g'), String(vVal)),
+    current
+  )
+}
+
+const DEFAULT_I18N = {
+  lang: 'id',
+  setLang: () => {},
+  t: defaultFallbackT,
+}
+
 export function useI18n() {
   const context = useContext(I18nContext)
-  if (!context) {
-    throw new Error('useI18n must be used within an I18nProvider')
-  }
-  return context
+  return context || DEFAULT_I18N
 }
