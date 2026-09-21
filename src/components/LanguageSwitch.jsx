@@ -3,23 +3,23 @@ import { useI18n } from '../i18n/I18nProvider'
 
 export function FlagID({ className = '' }) {
   return (
-    <svg width="20" height="14" viewBox="0 0 20 14" fill="none" className={`flag-svg ${className}`} aria-hidden="true">
-      <rect width="20" height="14" rx="2" fill="#FFFFFF" />
-      <path d="M0 2C0 0.895431 0.895431 0 2 0H18C19.1046 0 20 0.895431 20 2V7H0V2Z" fill="#E70011" />
-      <rect x="0.5" y="0.5" width="19" height="13" rx="1.5" stroke="rgba(0, 0, 0, 0.15)" strokeWidth="1" />
+    <svg width="19" height="13" viewBox="0 0 19 13" fill="none" className={`flag-svg ${className}`} aria-hidden="true">
+      <rect width="19" height="13" rx="2" fill="#FFFFFF" />
+      <path d="M0 2C0 0.895431 0.895431 0 2 0H17C18.1046 0 19 0.895431 19 2V6.5H0V2Z" fill="#E70011" />
+      <rect x="0.5" y="0.5" width="18" height="12" rx="1.5" stroke="rgba(0, 0, 0, 0.15)" strokeWidth="1" />
     </svg>
   )
 }
 
 export function FlagEN({ className = '' }) {
   return (
-    <svg width="20" height="14" viewBox="0 0 20 14" fill="none" className={`flag-svg ${className}`} aria-hidden="true">
-      <rect width="20" height="14" rx="2" fill="#012169" />
-      <path d="M0 0L20 14M20 0L0 14" stroke="#FFFFFF" strokeWidth="2.5" />
-      <path d="M0 0L20 14M20 0L0 14" stroke="#C8102E" strokeWidth="1.2" />
-      <path d="M10 0V14M0 7H20" stroke="#FFFFFF" strokeWidth="4" />
-      <path d="M10 0V14M0 7H20" stroke="#C8102E" strokeWidth="2.4" />
-      <rect x="0.5" y="0.5" width="19" height="13" rx="1.5" stroke="rgba(0, 0, 0, 0.15)" strokeWidth="1" />
+    <svg width="19" height="13" viewBox="0 0 19 13" fill="none" className={`flag-svg ${className}`} aria-hidden="true">
+      <rect width="19" height="13" rx="2" fill="#012169" />
+      <path d="M0 0L19 13M19 0L0 13" stroke="#FFFFFF" strokeWidth="2.5" />
+      <path d="M0 0L19 13M19 0L0 13" stroke="#C8102E" strokeWidth="1.2" />
+      <path d="M9.5 0V13M0 6.5H19" stroke="#FFFFFF" strokeWidth="4" />
+      <path d="M9.5 0V13M0 6.5H19" stroke="#C8102E" strokeWidth="2.4" />
+      <rect x="0.5" y="0.5" width="18" height="12" rx="1.5" stroke="rgba(0, 0, 0, 0.15)" strokeWidth="1" />
     </svg>
   )
 }

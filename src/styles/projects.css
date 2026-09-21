@@ -110,6 +110,7 @@
   color: var(--ink-soft);
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -285,7 +286,7 @@
   display: none;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 760px) {
   .pj-grid {
     gap: 16px;
     grid-template-columns: 1fr;
@@ -296,47 +297,94 @@
   }
 
   .pj-card {
-    min-height: 320px;
+    min-height: unset;
+    height: auto;
   }
 
   .pj-cover {
-    height: 104px;
-    min-height: 104px;
-    max-height: 104px;
-    aspect-ratio: auto;
+    aspect-ratio: 16 / 9;
+    height: auto;
+    min-height: unset;
+    max-height: unset;
   }
 
   .pj-cover img {
-    height: 104px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
 
   .pj-wire {
-    width: auto;
-    height: 64px;
+    width: 50%;
+    height: auto;
   }
 
   .pj-card-body {
-    padding: 16px;
+    padding: 14px 16px 16px;
   }
 
   .pj-meta {
+    font-size: 12.5px;
+    margin-bottom: 6px;
     white-space: nowrap;
   }
 
+  .pj-title {
+    font-size: 17px;
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+
+  .pj-role {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .pj-summary {
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .pj-foot {
+    border-top: 1px solid var(--line);
+    margin-top: auto;
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
   .pj-stack {
+    font-size: 12.5px;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     display: block;
-    max-width: 180px;
+    max-width: calc(100% - 65px);
+  }
+
+  .pj-internal {
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 12px;
+    padding: 1px 6px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
   }
 
   .pj-more-btn {
     display: block;
     width: 100%;
     min-height: 44px;
-    height: 48px;
+    height: 44px;
     margin-top: 16px;
     border: 1px solid var(--line);
     border-radius: var(--r-md);

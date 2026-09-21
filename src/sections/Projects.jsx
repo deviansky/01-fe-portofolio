@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useRef, useEffect } from 'react'
 import { PROJECT_CATEGORIES } from '../lib/format'
 import ProjectCard from '../components/project/ProjectCard'
 import ProjectModal from '../components/ProjectModal'
@@ -9,6 +9,7 @@ export default function Projects({ projects }) {
   const [filter, setFilter] = useState('all')
   const [selected, setSelected] = useState(null)
   const [expanded, setExpanded] = useState(false)
+  const filterBtnsRef = useRef({})
   const close = useCallback(() => setSelected(null), [])
 
   const available = PROJECT_CATEGORIES.filter(
@@ -19,6 +20,14 @@ export default function Projects({ projects }) {
     setFilter(key)
     setExpanded(false)
   }
+
+  // Scroll active filter into view on mount and on filter change
+  useEffect(() => {
+    const activeEl = filterBtnsRef.current[filter]
+    if (activeEl && typeof activeEl.scrollIntoView === 'function') {
+      activeEl.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' })
+    }
+  }, [filter])
 
   const visible = useMemo(() => {
     const list = filter === 'all' ? projects : projects.filter((p) => p.category === filter)
@@ -34,6 +43,7 @@ export default function Projects({ projects }) {
             {available.map((c) => (
               <button
                 key={c.key}
+                ref={(el) => (filterBtnsRef.current[c.key] = el)}
                 type="button"
                 className="filter-btn"
                 aria-pressed={filter === c.key}
