@@ -7,12 +7,12 @@ import { I18nProvider } from './i18n/I18nProvider'
 import { router } from './App'
 import './styles/tokens.css'
 import './styles/base.css'
-import './styles/sections.css'
-import './styles/projects.css'
-import './styles/hero.css'
-import './styles/entries.css'
-import './styles/contact.css'
 import './styles/admin.css'
+import './styles/site/tokens.css'
+import './styles/site/base.css'
+import './styles/site/nav.css'
+import './styles/site/home.css'
+import './styles/site/work.css'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

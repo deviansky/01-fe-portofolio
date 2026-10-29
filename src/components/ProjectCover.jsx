@@ -1,26 +1,34 @@
 import { useState } from 'react'
+import { projectColor } from '../lib/projectColor'
 
 /**
- * Sampul proyek. Kalau ada thumbnail_url → tampilkan gambarnya.
- * Kalau tidak ada (atau gagal dimuat) → ilustrasi wireframe sesuai kategori,
- * digambar dengan warna token, supaya kartu tetap informatif tanpa screenshot.
+ * Sampul proyek. Kalau ada thumbnail_url → tampilkan gambarnya di atas warna proyek.
+ * Kalau tidak ada (atau gagal dimuat) → ilustrasi wireframe sesuai kategori.
+ * `parallax` membungkus isi supaya bisa digeser pelan oleh useReveal.
  */
-export default function ProjectCover({ project, className = '' }) {
+export default function ProjectCover({ project, className = '', parallax = false }) {
   const [failed, setFailed] = useState(false)
   const hasImage = project.thumbnail_url && !failed
+  const { bg, fg } = projectColor(project)
 
   return (
-    <div className={`pj-cover pj-cover--${project.category} ${className}`}>
-      {hasImage ? (
-        <img
-          src={project.thumbnail_url}
-          alt={`Tampilan ${project.title}`}
-          loading="lazy"
-          onError={() => setFailed(true)}
-        />
-      ) : (
-        <Wireframe category={project.category} />
-      )}
+    <div
+      className={`pj-cover pj-cover--${project.category} ${className}`}
+      style={{ '--cover-bg': bg, '--cover-fg': fg }}
+      data-parallax={parallax || undefined}
+    >
+      <div className="pj-cover-media">
+        {hasImage ? (
+          <img
+            src={project.thumbnail_url}
+            alt={`Tampilan ${project.title}`}
+            loading="lazy"
+            onError={() => setFailed(true)}
+          />
+        ) : (
+          <Wireframe category={project.category} />
+        )}
+      </div>
     </div>
   )
 }

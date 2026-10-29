@@ -4,12 +4,15 @@ import { usePortfolio } from './context/PortfolioContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ScrollToHash from './components/ScrollToHash'
-import Home from './pages/Home'
+import Home, { AboutPage, SkillsPage, ProjectsPage, ExperiencePage, ContactPage } from './pages/Home'
 import ProjectDetail from './pages/ProjectDetail'
 import NotFound from './pages/NotFound'
 import { AuthProvider } from './admin/context/AuthContext'
 import RequireAuth from './admin/components/RequireAuth'
 import ErrorPage from './components/ErrorPage'
+import Cursor from './components/Cursor'
+import PageTransition from './components/PageTransition'
+import SmoothScroll from './motion/SmoothScroll'
 import { useI18n } from './i18n/I18nProvider'
 
 const AdminLogin = lazy(() => import('./admin/pages/AdminLogin'))
@@ -23,14 +26,24 @@ function PublicLayout() {
   const { t, lang } = useI18n()
 
   if (loading) {
-    return <div className="loading" role="status">{lang === 'en' ? 'Loading portfolio…' : 'Memuat portofolio…'}</div>
+    return (
+      <div className="site">
+        <div className="loading" role="status">
+          <span className="loading-dot" aria-hidden="true" />
+          {lang === 'en' ? 'Loading portfolio…' : 'Memuat portofolio…'}
+        </div>
+      </div>
+    )
   }
 
   const profile = data?.profile || {}
   const name = profile.short_name ?? profile.name ?? 'Portofolio'
 
   return (
-    <>
+    <div className="site">
+      <SmoothScroll />
+      <Cursor />
+      <PageTransition />
       <a href="#main" className="skip-link">{lang === 'en' ? 'Skip to content' : 'Lewati ke konten'}</a>
       <ScrollToHash ready={!loading} />
       <Navbar name={name} />
@@ -41,14 +54,23 @@ function PublicLayout() {
       {source === 'fallback' && (
         <p className="dev-banner">{t('projects.fallbackNotice')}</p>
       )}
-    </>
+    </div>
   )
 }
 
-function PublicHome() {
-  const { data } = usePortfolio()
-  return <Home data={data} />
+// halaman publik yang hanya butuh `data` portofolio
+function withData(Page) {
+  return function PublicPage() {
+    const { data } = usePortfolio()
+    return <Page data={data} />
+  }
 }
+const PublicHome = withData(Home)
+const PublicAbout = withData(AboutPage)
+const PublicSkills = withData(SkillsPage)
+const PublicProjects = withData(ProjectsPage)
+const PublicExperience = withData(ExperiencePage)
+const PublicContact = withData(ContactPage)
 
 function PublicProjectDetail() {
   const { data, source } = usePortfolio()
@@ -106,6 +128,11 @@ export const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <PublicHome /> },
+      { path: 'tentang', element: <PublicAbout /> },
+      { path: 'keahlian', element: <PublicSkills /> },
+      { path: 'proyek', element: <PublicProjects /> },
+      { path: 'pengalaman', element: <PublicExperience /> },
+      { path: 'kontak', element: <PublicContact /> },
       { path: 'proyek/:slug', element: <PublicProjectDetail /> },
       { path: '*', element: <NotFound /> },
     ],

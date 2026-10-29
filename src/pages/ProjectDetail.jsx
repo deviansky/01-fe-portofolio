@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import ProjectDetailContent from '../components/project/ProjectDetailContent'
 import NotFound from './NotFound'
 import { useI18n } from '../i18n/I18nProvider'
+import { useReveal } from '../motion/useReveal'
 
 export default function ProjectDetail({ data, source }) {
   const { slug } = useParams()
   const { lang } = useI18n()
   const fromList = data.projects.find((p) => p.slug === slug)
   const [project, setProject] = useState(fromList)
+  const rootRef = useRef(null)
+  useReveal(rootRef, [slug, lang, Boolean(project?.description)])
 
   // Data list hanya ringkasan; detail lengkap (deskripsi, gambar) diambil dari API.
   useEffect(() => {
@@ -27,5 +30,9 @@ export default function ProjectDetail({ data, source }) {
 
   if (!project) return <NotFound />
 
-  return <ProjectDetailContent project={project} />
+  return (
+    <div ref={rootRef}>
+      <ProjectDetailContent project={project} />
+    </div>
+  )
 }

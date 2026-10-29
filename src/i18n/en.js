@@ -14,6 +14,10 @@ export const en = {
     langToggle: 'Switch language to Bahasa Indonesia',
   },
   hero: {
+    scroll: 'Scroll',
+    hello: "Hi, I'm",
+    techCount: 'Technologies',
+    intro: 'Building ERPs, field-team apps, and web products people use every day.',
     availableBadge: 'Available for new projects',
     availableSub: 'Available for full-time work or contract projects',
     seeProjects: 'View Projects',
@@ -23,6 +27,7 @@ export const en = {
     satisfiedClients: 'Satisfied Clients',
   },
   about: {
+    kicker: 'In short',
     title: 'About Me',
     focusTitle: 'Primary Focus',
   },
@@ -72,6 +77,10 @@ export const en = {
     title: 'Education',
   },
   contact: {
+    bigTitle: 'Interested in working together?',
+    bigAccent: 'Get in touch.',
+    toForm: 'Write a message',
+    orReach: 'Or reach out directly',
     title: 'Contact Me',
     subtitle: 'Have a question or interested in collaborating? Please send a message below.',
     nameLabel: 'Full Name',

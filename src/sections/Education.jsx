@@ -1,22 +1,28 @@
+import { useRef } from 'react'
 import Entry from '../components/Entry'
 import { useI18n } from '../i18n/I18nProvider'
+import { useReveal } from '../motion/useReveal'
+import SplitWords from '../components/SplitWords'
 
 export default function Education({ educations = [], certifications = [] }) {
   const { t, lang } = useI18n()
+  const rootRef = useRef(null)
+  useReveal(rootRef, [lang, educations.length, certifications.length])
+
   if (!educations.length && !certifications.length) return null
   return (
-    <section className="section container split" id="pendidikan">
-      <h2 className="section-title">{t('education.title')}</h2>
-      <div className="split-body">
+    <section className="section" id="pendidikan" ref={rootRef}>
+      <div className="container">
+        <h2 className="sec-title" data-reveal="words"><SplitWords text={t('education.title')} /></h2>
         {educations.length > 0 && (
-          <div className="entries-list">
-            {educations.map((item) => (
-              <Entry key={item.id} item={item} type="education" />
+          <ol className="entries-list">
+            {educations.map((item, i) => (
+              <Entry key={item.id} item={item} type="education" index={i + 2} />
             ))}
-          </div>
+          </ol>
         )}
         {certifications.length > 0 && (
-          <div className="certifications-block">
+          <div className="certifications-block" data-reveal="up">
             <h3 className="sub-title">{lang === 'en' ? 'Certifications' : 'Sertifikasi'}</h3>
             <ul className="plain-list">
               {certifications.map((c) => (

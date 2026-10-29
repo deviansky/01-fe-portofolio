@@ -14,6 +14,10 @@ export const id = {
     langToggle: 'Ganti bahasa ke English',
   },
   hero: {
+    scroll: 'Gulir',
+    hello: 'Halo, saya',
+    techCount: 'Teknologi Dikuasai',
+    intro: 'Membangun ERP, aplikasi lapangan, dan web yang dipakai setiap hari.',
     availableBadge: 'Siap untuk proyek baru',
     availableSub: 'Tersedia untuk kerja purna waktu atau proyek',
     seeProjects: 'Lihat proyek',
@@ -23,6 +27,7 @@ export const id = {
     satisfiedClients: 'Klien Puas',
   },
   about: {
+    kicker: 'Sekilas',
     title: 'Tentang Saya',
     focusTitle: 'Fokus Utama',
   },
@@ -72,6 +77,10 @@ export const id = {
     title: 'Pendidikan',
   },
   contact: {
+    bigTitle: 'Tertarik bekerja sama?',
+    bigAccent: 'Hubungi saya.',
+    toForm: 'Tulis pesan',
+    orReach: 'Atau hubungi langsung',
     title: 'Hubungi Saya',
     subtitle: 'Punya pertanyaan atau tertarik bekerja sama? Silakan kirim pesan di bawah ini.',
     nameLabel: 'Nama Lengkap',

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { categoryLabel } from '../../lib/format'
 import ProjectCover from '../ProjectCover'
+import SplitWords from '../SplitWords'
 import Stack from '../Stack'
 import RichContent from '../RichContent'
 import { useI18n } from '../../i18n/I18nProvider'
@@ -38,13 +39,14 @@ export default function ProjectDetailContent({ project, backLink, renderLink }) 
             {backLink ? (
                 backLink
             ) : (
-                <Link to="/#proyek" className="back-link">{isEn ? 'All projects' : 'Semua proyek'}</Link>
+                <Link to="/proyek" className="back-link" data-pt-label={t('nav.projects')}>{isEn ? 'All projects' : 'Semua proyek'}</Link>
             )}
 
             <header className="detail-head">
-                <h1>{project.title}</h1>
-                <p className="detail-summary">{project.summary}</p>
-                <dl className="detail-meta">
+                <p className="detail-kicker" data-reveal="up" data-reveal-now>{categoryLabel(project.category, lang)}{project.year && ` — ${project.year}`}</p>
+                <h1 data-reveal="words" data-reveal-now data-reveal-delay="0.1"><SplitWords text={project.title} /></h1>
+                <p className="detail-summary" data-reveal="up" data-reveal-now data-reveal-delay="0.35">{project.summary}</p>
+                <dl className="detail-meta" data-reveal="up" data-reveal-now data-reveal-delay="0.45">
                     <div><dt>{t('projects.role')}</dt><dd>{project.role}</dd></div>
                     <div><dt>{t('projects.year')}</dt><dd>{project.year}</dd></div>
                     <div><dt>{t('projects.category')}</dt><dd>{categoryLabel(project.category, lang)}</dd></div>
@@ -52,9 +54,11 @@ export default function ProjectDetailContent({ project, backLink, renderLink }) 
                 <Stack items={project.stack} />
             </header>
 
-            <ProjectCover project={project} className="detail-cover" />
+            <div className="detail-cover-wrap" data-reveal="clip" data-reveal-now data-reveal-delay="0.3">
+                <ProjectCover project={project} className="detail-cover" parallax />
+            </div>
 
-            <div className="prose detail-body">
+            <div className="prose detail-body" data-reveal="up">
                 <RichContent html={project.description} />
                 {project.highlights?.length > 0 && (
                     <>
@@ -65,14 +69,14 @@ export default function ProjectDetailContent({ project, backLink, renderLink }) 
             </div>
 
             {project.images?.length > 0 && (
-                <div className="gallery">
+                <div className="gallery" data-reveal="up">
                     {project.images.map((img) => (
                         <GalleryItem key={img.url} img={img} projectTitle={project.title} />
                     ))}
                 </div>
             )}
 
-            <div className="detail-links">
+            <div className="detail-links" data-reveal="up">
                 {typeof renderLink === 'function' ? (
                     renderLink(project)
                 ) : (

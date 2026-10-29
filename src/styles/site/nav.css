@@ -1,0 +1,182 @@
+/* ================================================================
+   NAVIGASI, SAKLAR TEMA/BAHASA, MENU LAYAR PENUH, FOOTER
+   ================================================================ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  color: var(--v-fg);
+  transition: transform 0.7s var(--v-ease), background-color 0.4s, color 0.4s;
+}
+.nav.is-hidden { transform: translateY(-110%); }
+.nav.is-scrolled:not(.is-open) {
+  background: color-mix(in srgb, var(--v-bg) 80%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+}
+.nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; height: 76px; }
+
+.nav-brand {
+  position: relative; z-index: 2;
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-weight: 600; font-size: 1.05rem; letter-spacing: -0.02em;
+  text-decoration: none; white-space: nowrap;
+}
+.nav-brand-mark {
+  width: 14px; height: 14px; border-radius: 50%; flex: none;
+  background: conic-gradient(var(--v-c1), var(--v-c4), var(--v-c2), var(--v-c5), var(--v-c6), var(--v-c1));
+  animation: v-spin 6s linear infinite;
+}
+
+.nav-links { display: flex; gap: clamp(1rem, 2.2vw, 2rem); }
+.nav-links a {
+  position: relative; padding: 0.35rem 0;
+  font-size: 0.95rem; font-weight: 500; text-decoration: none;
+}
+.nav-links a::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px;
+  background: currentColor; transform: scaleX(0); transform-origin: right;
+  transition: transform 0.6s var(--v-ease);
+}
+.nav-links a:hover::after, .nav-links a[aria-current='page']::after { transform: scaleX(1); transform-origin: left; }
+.nav-link-num { display: none; }
+
+.nav-controls { position: relative; z-index: 2; display: flex; align-items: center; gap: 0.5rem; }
+.nav-cta {
+  display: inline-flex; align-items: center; height: 40px; padding: 0 1.1rem; margin-left: 0.25rem;
+  border-radius: 999px; background: var(--v-fg); color: var(--v-bg);
+  font-size: 0.9rem; font-weight: 500; text-decoration: none; white-space: nowrap;
+  transition: background-color 0.35s, color 0.35s;
+}
+.nav-cta:hover { background: var(--v-c1); color: #fff; }
+
+.nav-menu-btn {
+  display: none;
+  width: 48px; height: 48px; border: 0; border-radius: 50%;
+  background: var(--v-fg); color: var(--v-bg); cursor: pointer;
+  place-items: center;
+}
+.nav-menu-lines { position: relative; display: block; width: 18px; height: 8px; }
+.nav-menu-lines span {
+  position: absolute; left: 0; right: 0; height: 1.6px; border-radius: 2px; background: currentColor;
+  transition: transform 0.5s var(--v-ease), top 0.5s var(--v-ease);
+}
+.nav-menu-lines span:first-child { top: 0; }
+.nav-menu-lines span:last-child { top: calc(100% - 1.6px); }
+.nav.is-open .nav-menu-lines span:first-child { top: calc(50% - 0.8px); transform: rotate(45deg); }
+.nav.is-open .nav-menu-lines span:last-child { top: calc(50% - 0.8px); transform: rotate(-45deg); }
+
+/* ---------- saklar tema ---------- */
+.theme-switch-btn {
+  display: inline-flex; align-items: center; padding: 0; border: 0; background: none;
+  color: inherit; cursor: pointer; border-radius: 999px;
+}
+.theme-switch-track {
+  position: relative; display: flex; align-items: center; justify-content: space-between;
+  width: 64px; height: 40px; padding: 0 10px;
+  border: 1px solid var(--v-line); border-radius: 999px;
+}
+.theme-switch-icon { position: relative; z-index: 1; display: grid; place-items: center; }
+.theme-switch-icon svg { stroke: currentColor; }
+.theme-switch-knob {
+  position: absolute; top: 5px; left: 5px; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--v-fg); transition: transform 0.6s var(--v-ease);
+}
+.theme-switch-knob.is-dark { transform: translateX(24px); }
+/* ikon yang tertutup knob ikut warna latar supaya tetap terlihat di atas knob */
+.theme-switch-track:has(.is-dark) .icon-sun, .theme-switch-track:not(:has(.is-dark)) .icon-moon { color: var(--v-bg); }
+.theme-switch-mobile-icon {
+  width: 40px; height: 40px; display: grid; place-items: center;
+  border: 1px solid var(--v-line); border-radius: 50%;
+}
+.mobile-only-switch { display: none; }
+
+/* ---------- pilihan bahasa ---------- */
+.lang-switch-container { position: relative; }
+.lang-switch-btn {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  height: 40px; padding: 0 0.85rem;
+  border: 1px solid var(--v-line); border-radius: 999px; background: none;
+  color: inherit; font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  transition: border-color 0.3s;
+}
+.lang-switch-btn:hover { border-color: currentColor; }
+.flag-svg { display: block; border-radius: 3px; }
+.lang-chevron { transition: transform 0.4s var(--v-ease); }
+.lang-chevron.is-open { transform: rotate(180deg); }
+.lang-dropdown-menu {
+  position: absolute; top: calc(100% + 8px); right: 0; min-width: 120px;
+  display: grid; gap: 2px; padding: 6px;
+  background: var(--v-bg); color: var(--v-fg);
+  border: 1px solid var(--v-line); border-radius: 16px;
+  box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.35);
+  animation: lang-pop 0.35s var(--v-ease);
+}
+@keyframes lang-pop { from { opacity: 0; transform: translateY(-6px) scale(0.97); } }
+.lang-dropdown-arrow { display: none; }
+.lang-dropdown-item {
+  display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem;
+  border: 0; border-radius: 10px; background: none; color: inherit;
+  font: inherit; font-size: 0.9rem; font-weight: 500; cursor: pointer; text-align: left;
+}
+.lang-dropdown-item:hover, .lang-dropdown-item.is-active { background: var(--v-bg-soft); }
+
+/* ---------- mobile: menu layar penuh ---------- */
+@media (max-width: 900px) {
+  .nav-menu-btn { display: grid; }
+  .nav-cta { display: none; }
+  .desktop-only-switch { display: none; }
+  .mobile-only-switch { display: grid; }
+  .lang-switch-btn .lang-code { display: none; }
+
+  .nav-links {
+    position: fixed; inset: 0; z-index: 1;
+    flex-direction: column; justify-content: flex-end; gap: 0.25rem;
+    padding: 7rem var(--v-gutter) 3.5rem;
+    background: var(--v-c1); color: #fff;
+    clip-path: circle(0% at calc(100% - var(--v-gutter) - 24px) 38px);
+    visibility: hidden;
+    transition: clip-path 0.9s var(--v-ease-io), visibility 0s 0.9s;
+  }
+  .nav-links.is-open {
+    clip-path: circle(150% at calc(100% - var(--v-gutter) - 24px) 38px);
+    visibility: visible;
+    transition: clip-path 0.9s var(--v-ease-io), visibility 0s;
+  }
+  .nav-links a {
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    font-size: clamp(2.6rem, 12vw, 4.5rem); font-weight: 500; letter-spacing: -0.045em; line-height: 1.05;
+    transform: translateY(40px); opacity: 0;
+    transition: transform 0.8s var(--v-ease), opacity 0.5s;
+  }
+  .nav-links.is-open a {
+    transform: none; opacity: 1;
+    transition-delay: calc(var(--i) * 60ms + 250ms);
+  }
+  .nav-links a::after { display: none; }
+  .nav-link-num { display: inline; margin-top: 0.6em; font-size: 0.8rem; letter-spacing: 0; opacity: 0.6; }
+
+  .nav.is-open { color: #fff; }
+  .nav.is-open .nav-menu-btn { background: #fff; color: #0c0c0d; }
+  .nav.is-open .lang-switch-btn, .nav.is-open .theme-switch-mobile-icon { border-color: rgb(255 255 255 / 0.4); }
+}
+
+@media (max-width: 380px) {
+  .nav-brand > span:last-child { max-width: 9.5rem; overflow: hidden; text-overflow: ellipsis; }
+}
+
+/* ---------- footer ---------- */
+.footer { background: var(--v-c1); color: #fff; }
+.footer-inner {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem;
+  padding: 2rem 0 2.25rem; border-top: 1px solid rgb(255 255 255 / 0.22);
+  font-size: var(--v-fs-sm);
+}
+.footer-inner p { margin: 0; }
+.footer-built { opacity: 0.7; }
+.footer-top {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  height: 44px; padding: 0 1.2rem; border: 1px solid rgb(255 255 255 / 0.45); border-radius: 999px;
+  font-weight: 500; text-decoration: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+.footer-top svg { width: 16px; height: 16px; }
+.footer-top:hover { background: #fff; color: var(--v-c1); }

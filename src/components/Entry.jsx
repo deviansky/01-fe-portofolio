@@ -8,7 +8,12 @@ function getInitials(name = '') {
     return (words[0][0] + words[1][0]).toUpperCase()
 }
 
-export default function Entry({ item, type = 'experience' }) {
+/**
+ * Satu baris riwayat (pengalaman / pendidikan) bergaya daftar besar:
+ * periode di kiri, jabatan besar di tengah, detail di bawahnya.
+ * Latar berwarna naik dari bawah saat hover (warna dari --row-color).
+ */
+export default function Entry({ item, type = 'experience', index = 0 }) {
     const { lang } = useI18n()
     const isEn = lang === 'en'
 
@@ -19,36 +24,40 @@ export default function Entry({ item, type = 'experience' }) {
         : [item.degree, item.field].filter(Boolean)
     const subtitle = subtitleParts.join(', ')
 
-    const metaParts = [
-        item.location,
-        item.work_mode,
-    ].filter(Boolean)
-    const locationText = metaParts.join(', ')
-
+    const locationText = [item.location, item.work_mode].filter(Boolean).join(', ')
     const periodText = formatPeriod(item.started_at, item.ended_at, item.is_current, lang)
     const initials = getInitials(isExp ? item.company : item.institution)
 
     return (
-        <div className="entry-item">
-            <div className="entry-logo">
-                {item.logo_url ? (
-                    <img src={item.logo_url} alt={isExp ? item.company : item.institution} />
-                ) : (
-                    <span className="entry-initials">{initials}</span>
-                )}
+        <li className="entry-item" data-reveal="up" style={{ '--row-color': `var(--v-r${(index % 4) + 1})` }}>
+            <div className="entry-side">
+                {periodText && <p className="entry-period">{periodText}</p>}
+                {item.is_current && <span className="entry-now">{isEn ? 'Now' : 'Sekarang'}</span>}
             </div>
             <div className="entry-content">
-                <h3 className="entry-title">{title}</h3>
-                {subtitle && <p className="entry-subtitle">{subtitle}</p>}
-                {periodText && <p className="entry-period">{periodText}</p>}
-                {locationText && <p className="entry-location">{locationText}</p>}
+                <div className="entry-head">
+                    <span className="entry-logo" aria-hidden={!item.logo_url}>
+                        {item.logo_url ? (
+                            <img src={item.logo_url} alt={isExp ? item.company : item.institution} />
+                        ) : (
+                            <span className="entry-initials">{initials}</span>
+                        )}
+                    </span>
+                    <div>
+                        <h3 className="entry-title">{title}</h3>
+                        {subtitle && <p className="entry-subtitle">{subtitle}</p>}
+                    </div>
+                </div>
                 {item.description && <p className="entry-description">{item.description}</p>}
-                {item.skills?.length > 0 && (
-                    <p className="entry-skills">
-                        <strong>{isEn ? 'Skills:' : 'Keahlian:'}</strong> {item.skills.join(', ')}
-                    </p>
-                )}
+                <div className="entry-foot">
+                    {locationText && <span className="entry-location">{locationText}</span>}
+                    {item.skills?.length > 0 && (
+                        <ul className="entry-skills" aria-label={isEn ? 'Skills' : 'Keahlian'}>
+                            {item.skills.map((s) => <li key={s}>{s}</li>)}
+                        </ul>
+                    )}
+                </div>
             </div>
-        </div>
+        </li>
     )
 }

@@ -1,0 +1,53 @@
+/* ================================================================
+   TOKEN SITUS PUBLIK (desain v2) — prefiks --v-
+   Konsep: kanvas monokrom yang tenang, warna datang dari sampul
+   proyek, aksen, dan gerak. Token lama di styles/tokens.css tetap
+   dipakai panel admin, jangan dicampur.
+   ================================================================ */
+:root {
+  --v-bg: #ffffff;
+  --v-bg-soft: #f3f3f1;
+  --v-fg: #0c0c0d;
+  --v-fg-soft: #5f5f66;
+  --v-line: #e3e3e0;
+
+  /* aksen cerah — sampul, kursor, highlight */
+  --v-c1: #3d5afe; /* biru listrik — warna utama: kontak, footer */
+  --v-c2: #ff5b37; /* koral */
+  --v-c3: #c8f169; /* lime */
+  --v-c4: #8a5cf6; /* violet */
+  --v-c5: #ffc13b; /* amber */
+  --v-c6: #12c9a5; /* teal */
+
+  /* warna hover baris: hanya yang terang, teks gelap tetap terbaca */
+  --v-r1: var(--v-c3);
+  --v-r2: var(--v-c5);
+  --v-r3: var(--v-c6);
+  --v-r4: #ff9ccc;
+  --v-row-ink: #0c0c0d;
+
+  --v-gradient: linear-gradient(90deg, var(--v-c1), var(--v-c4), var(--v-c2), var(--v-c5), var(--v-c6), var(--v-c1));
+
+  --v-font: 'Inter Tight', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --v-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+
+  --v-fs-hero: clamp(3.1rem, 12vw, 11.5rem);
+  --v-fs-h1: clamp(2.75rem, 8vw, 7.5rem);
+  --v-fs-xl: clamp(1.75rem, 4.2vw, 3.6rem);
+  --v-fs-lg: clamp(1.2rem, 1.9vw, 1.55rem);
+  --v-fs-sm: 0.9rem;
+
+  --v-gutter: clamp(1rem, 4vw, 3.5rem);
+  --v-max: 1440px;
+  --v-radius: clamp(1.25rem, 2.4vw, 2rem);
+  --v-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --v-ease-io: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+:root[data-theme='dark'] {
+  --v-bg: #0c0c0d;
+  --v-bg-soft: #161618;
+  --v-fg: #f3f3f1;
+  --v-fg-soft: #9b9ba2;
+  --v-line: #29292c;
+}
